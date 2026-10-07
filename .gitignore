@@ -1,0 +1,10 @@
+.env
+data/
+__pycache__/
+*.pyc
+.pytest_cache/
+.venv/
+node_modules/
+tests/ui/node_modules/
+*.egg-info/
+benchmark/results/*-subset.*

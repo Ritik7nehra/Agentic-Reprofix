@@ -1,0 +1,60 @@
+{
+  "id": "demo_broken_image_classifier",
+  "category": "multi",
+  "title": "Demo: dependency conflict + classifier dimension + wrong normalisation",
+  "difficulty": "hard",
+  "goal": "Reproduce the documented experiment and determine why the validation accuracy does not match the documented result. Fix the repository so it reproduces the documented result.",
+  "command": "python train.py",
+  "metric": {
+    "name": "val_accuracy",
+    "expected": 0.881,
+    "tolerance": 0.03
+  },
+  "symptom": {
+    "kind": "install_failure"
+  },
+  "ground_truth": {
+    "category": "multi",
+    "files": [
+      "requirements.txt",
+      "model.py",
+      "preprocess.py"
+    ],
+    "description": "Three independent faults that surface one after another: install error, crash, then a wrong metric."
+  },
+  "fix": [
+    {
+      "path": "requirements.txt",
+      "search": "numpy==2.1.0\nnumpy<2\n",
+      "replace": "numpy>=1.26\n"
+    },
+    {
+      "path": "model.py",
+      "search": "(hidden // 2, num_classes)",
+      "replace": "(hidden, num_classes)"
+    },
+    {
+      "path": "preprocess.py",
+      "search": "    return (x - 0.5) / 0.5",
+      "replace": "    return (x - PIXEL_MEAN) / PIXEL_STD"
+    }
+  ],
+  "stages": [
+    {
+      "category": "dependency",
+      "statement": "requirements.txt pins numpy==2.1.0 and numpy<2 at once, so installation fails."
+    },
+    {
+      "category": "architecture",
+      "statement": "The output layer W2 is allocated with hidden//2 inputs, so the classifier dimension does not match the hidden layer."
+    },
+    {
+      "category": "preprocessing",
+      "statement": "Inputs are normalised with generic mean 0.5/std 0.5 instead of the documented dataset statistics."
+    }
+  ],
+  "hidden": {
+    "seed": 1234,
+    "tolerance": 0.06
+  }
+}

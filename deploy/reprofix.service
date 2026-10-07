@@ -1,0 +1,31 @@
+# systemd unit for running ReproFix directly on a VM (no application container). See docs/deployment.md.
+#
+# STATUS: not run. Install it with the steps in docs/deployment.md; paths below assume /opt/reprofix.
+# The service user is in the `docker` group because the Docker sandbox needs the daemon; that group is root-equivalent.
+[Unit]
+Description=ReproFix (reproduce, diagnose, repair, verify)
+After=network-online.target docker.service
+Wants=network-online.target
+Requires=docker.service
+
+[Service]
+User=reprofix
+Group=reprofix
+SupplementaryGroups=docker
+WorkingDirectory=/opt/reprofix
+# Default: confine the sandbox install phase to PyPI (an --internal Docker network plus an allow-list proxy container).
+# /etc/reprofix.env, read next, can override this with REPROFIX_INSTALL_NETWORK=open.
+Environment=REPROFIX_INSTALL_NETWORK=proxy
+# Holds NEBIUS_API_KEY, REPROFIX_API_TOKEN and REPROFIX_DATA_DIR. chmod 600, owned by root.
+EnvironmentFile=/etc/reprofix.env
+# Creates the internal network and starts the proxy container if they are missing (idempotent). Needs the sandbox image.
+ExecStartPre=/opt/reprofix/.venv/bin/reprofix egress up
+ExecStart=/opt/reprofix/.venv/bin/reprofix serve --host 127.0.0.1 --port 8000
+Restart=on-failure
+RestartSec=5
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectSystem=full
+
+[Install]
+WantedBy=multi-user.target

@@ -1,0 +1,35 @@
+{
+  "id": "code_none_shuffle",
+  "category": "code",
+  "title": "rng.shuffle() result used as an index array",
+  "difficulty": "easy",
+  "goal": "Reproduce the documented experiment and determine why the validation accuracy does not match the documented result. Fix the repository so it reproduces the documented result.",
+  "command": "python train.py",
+  "metric": {
+    "name": "val_accuracy",
+    "expected": 0.881,
+    "tolerance": 0.03
+  },
+  "symptom": {
+    "kind": "crash",
+    "pattern": "NoneType"
+  },
+  "ground_truth": {
+    "category": "code",
+    "files": [
+      "train.py"
+    ],
+    "description": "Generator.shuffle works in place and returns None."
+  },
+  "fix": [
+    {
+      "path": "train.py",
+      "search": "    idx = rng.shuffle(np.arange(n))\n",
+      "replace": "    idx = rng.permutation(n)\n"
+    }
+  ],
+  "hidden": {
+    "seed": 1234,
+    "tolerance": 0.06
+  }
+}

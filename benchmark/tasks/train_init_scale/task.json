@@ -1,0 +1,34 @@
+{
+  "id": "train_init_scale",
+  "category": "training",
+  "title": "He initialisation formula inverted for the first layer",
+  "difficulty": "medium",
+  "goal": "Reproduce the documented experiment and determine why the validation accuracy does not match the documented result. Fix the repository so it reproduces the documented result.",
+  "command": "python train.py",
+  "metric": {
+    "name": "val_accuracy",
+    "expected": 0.881,
+    "tolerance": 0.03
+  },
+  "symptom": {
+    "kind": "wrong_result"
+  },
+  "ground_truth": {
+    "category": "training",
+    "files": [
+      "model.py"
+    ],
+    "description": "W1 is drawn with std sqrt(2*fan_in) instead of sqrt(2/fan_in), about 200x too large."
+  },
+  "fix": [
+    {
+      "path": "model.py",
+      "search": "np.sqrt(2.0 * in_dim)",
+      "replace": "np.sqrt(2.0 / in_dim)"
+    }
+  ],
+  "hidden": {
+    "seed": 1234,
+    "tolerance": 0.06
+  }
+}

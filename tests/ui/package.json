@@ -1,0 +1,7 @@
+{
+  "name": "reprofix-ui-tests",
+  "private": true,
+  "type": "module",
+  "scripts": { "test": "node ui_smoke.test.mjs" },
+  "devDependencies": { "jsdom": "^24.0.0" }
+}

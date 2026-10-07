@@ -1,0 +1,34 @@
+{
+  "id": "data_val_labels",
+  "category": "data",
+  "title": "Validation labels drawn from a second, unrelated sample",
+  "difficulty": "medium",
+  "goal": "Reproduce the documented experiment and determine why the validation accuracy does not match the documented result. Fix the repository so it reproduces the documented result.",
+  "command": "python train.py",
+  "metric": {
+    "name": "val_accuracy",
+    "expected": 0.881,
+    "tolerance": 0.03
+  },
+  "symptom": {
+    "kind": "wrong_result"
+  },
+  "ground_truth": {
+    "category": "data",
+    "files": [
+      "data.py"
+    ],
+    "description": "sample() is called twice, so validation labels no longer belong to the validation images."
+  },
+  "fix": [
+    {
+      "path": "data.py",
+      "search": "    x_val, _ = sample(n_val)\n    _, y_val = sample(n_val)\n",
+      "replace": "    x_val, y_val = sample(n_val)\n"
+    }
+  ],
+  "hidden": {
+    "seed": 1234,
+    "tolerance": 0.06
+  }
+}

@@ -1,0 +1,122 @@
+# ReproFix on one Linux VM with Docker.   docker compose up -d --build
+#
+# STATUS: validated with `docker compose config` and tests/test_deploy.py only. It has not been brought up:
+# no image was built or started when this was written. See docs/deployment.md for the steps and for what to
+# check on first start.
+#
+# Read this before exposing it: the app container gets the host's Docker socket so that it can start the sandbox
+# containers. That socket is root on the host. Use a VM that holds nothing else, keep the API token secret, and
+# prefer the systemd install in docs/deployment.md if the VM is reachable from the internet.
+#
+# Variables (put them in .env next to this file; see .env.example):
+#   REPROFIX_API_TOKEN       required: Compose refuses to start without one (`reprofix serve` itself only warns)
+#   NEBIUS_API_KEY           required for real runs (the offline demo works without it)
+#   DOCKER_GID               required: the host's docker group id    getent group docker | cut -d: -f3
+#   REPROFIX_INSTALL_NETWORK proxy (default here) | open. proxy confines the install phase to PyPI through the egress service
+#   REPROFIX_EGRESS_ALLOW    hosts the egress proxy tunnels to (default pypi.org,files.pythonhosted.org)
+#   REPROFIX_HOST_DATA_DIR   host directory for runs and the database (default /srv/reprofix; must be owned by uid 1000)
+#   REPROFIX_DOMAIN          only with --profile tls: the DNS name Caddy should obtain a certificate for (default localhost)
+
+services:
+  sandbox-image:
+    # Builds the image the sandbox containers use, on the host's Docker daemon, then exits.
+    build:
+      context: .
+      dockerfile: docker/sandbox.Dockerfile
+    image: reprofix-sandbox:latest
+    entrypoint: ["true"]
+    restart: "no"
+
+  egress:
+    # The install phase's only way out. Sandbox install containers are started on the internal network `reprofix-install`
+    # (no gateway, no route to the Internet); this container is attached to it AND to the normal network, and tunnels HTTPS
+    # to the allow-listed hosts only (reprofix/sandbox/egress.py). The name is fixed because the app looks it up by name.
+    image: reprofix-sandbox:latest
+    container_name: reprofix-egress
+    command: ["python", "/opt/reprofix/egress.py", "--listen", "0.0.0.0:3128"]
+    depends_on:
+      sandbox-image:
+        condition: service_completed_successfully
+    restart: unless-stopped
+    user: "1000:1000"
+    read_only: true
+    cap_drop: [ALL]
+    security_opt:
+      - no-new-privileges:true
+    mem_limit: 256m
+    pids_limit: 256
+    environment:
+      REPROFIX_EGRESS_ALLOW: "${REPROFIX_EGRESS_ALLOW:-pypi.org,files.pythonhosted.org}"
+    labels:
+      # The app reads this label before every install to check that the running proxy has the allow-list it expects.
+      reprofix.egress.allow: "${REPROFIX_EGRESS_ALLOW:-pypi.org,files.pythonhosted.org}"
+    networks:
+      - install
+      - default
+
+  reprofix:
+    build: .
+    image: reprofix-app:local
+    depends_on:
+      sandbox-image:
+        condition: service_completed_successfully
+      egress:
+        condition: service_started
+    restart: unless-stopped
+    user: "1000:1000"
+    group_add:
+      - "${DOCKER_GID:?set DOCKER_GID to the host docker group id: getent group docker | cut -d: -f3}"
+    cap_drop: [ALL]
+    security_opt:
+      - no-new-privileges:true
+    env_file:
+      - path: .env
+        required: false      # NEBIUS_API_KEY etc.; without it only the offline demo works
+    environment:
+      REPROFIX_SANDBOX: docker
+      REPROFIX_SANDBOX_IMAGE: reprofix-sandbox:latest
+      REPROFIX_API_TOKEN: "${REPROFIX_API_TOKEN:?set REPROFIX_API_TOKEN in .env: the server executes repositories for whoever can reach it}"
+      REPROFIX_ALLOW_UNSAFE_LOCAL: "0"
+      REPROFIX_ALLOW_LOCAL_PATHS: "0"
+      # proxy: installs run on the internal network and can only reach the allow-listed hosts through the egress service.
+      # open: the pre-existing behaviour (the default Docker bridge, any host). The app refuses to install if proxy is set but not ready.
+      REPROFIX_INSTALL_NETWORK: "${REPROFIX_INSTALL_NETWORK:-proxy}"
+      REPROFIX_EGRESS_ALLOW: "${REPROFIX_EGRESS_ALLOW:-pypi.org,files.pythonhosted.org}"
+      # The sandbox containers are siblings started by the HOST daemon, which resolves `-v <path>:/work` on the host.
+      # The data directory therefore has to have the same absolute path inside this container and on the host.
+      REPROFIX_DATA_DIR: "${REPROFIX_HOST_DATA_DIR:-/srv/reprofix}"
+    volumes:
+      - "${REPROFIX_HOST_DATA_DIR:-/srv/reprofix}:${REPROFIX_HOST_DATA_DIR:-/srv/reprofix}"
+      - /var/run/docker.sock:/var/run/docker.sock
+    tmpfs:
+      - /tmp
+    ports:
+      - "127.0.0.1:8000:8000"
+
+  caddy:
+    # Optional TLS in front of the app:   docker compose --profile tls up -d
+    profiles: ["tls"]
+    image: caddy:2
+    restart: unless-stopped
+    depends_on:
+      - reprofix
+    environment:
+      # Compose interpolates every service, enabled or not, so this cannot be a required variable (that would block
+      # a plain `docker compose up`). "localhost" makes Caddy use its own local CA; set a real DNS name for TLS.
+      REPROFIX_DOMAIN: "${REPROFIX_DOMAIN:-localhost}"
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./deploy/Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddy_data:/data
+
+networks:
+  install:
+    # No gateway: containers on this network cannot reach anything except each other. The fixed name lets the app
+    # (which starts the install containers through the host's daemon) refer to it.
+    name: reprofix-install
+    internal: true
+
+volumes:
+  caddy_data:

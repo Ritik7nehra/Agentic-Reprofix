@@ -1,0 +1,34 @@
+{
+  "id": "eval_on_train_split",
+  "category": "evaluation",
+  "title": "'Validation' accuracy computed on the training split",
+  "difficulty": "medium",
+  "goal": "Reproduce the documented experiment and determine why the validation accuracy does not match the documented result. Fix the repository so it reproduces the documented result.",
+  "command": "python train.py",
+  "metric": {
+    "name": "val_accuracy",
+    "expected": 0.881,
+    "tolerance": 0.03
+  },
+  "symptom": {
+    "kind": "wrong_result"
+  },
+  "ground_truth": {
+    "category": "evaluation",
+    "files": [
+      "train.py"
+    ],
+    "description": "The reported metric is measured on training data, which inflates it."
+  },
+  "fix": [
+    {
+      "path": "train.py",
+      "search": "eval_x, eval_y = x_train, y_train",
+      "replace": "eval_x, eval_y = x_val, y_val"
+    }
+  ],
+  "hidden": {
+    "seed": 1234,
+    "tolerance": 0.06
+  }
+}

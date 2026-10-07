@@ -1,0 +1,34 @@
+{
+  "id": "train_lr_schedule",
+  "category": "training",
+  "title": "Learning-rate decay factor 0.5 instead of the documented 0.95",
+  "difficulty": "medium",
+  "goal": "Reproduce the documented experiment and determine why the validation accuracy does not match the documented result. Fix the repository so it reproduces the documented result.",
+  "command": "python train.py",
+  "metric": {
+    "name": "val_accuracy",
+    "expected": 0.881,
+    "tolerance": 0.03
+  },
+  "symptom": {
+    "kind": "wrong_result"
+  },
+  "ground_truth": {
+    "category": "training",
+    "files": [
+      "train.py"
+    ],
+    "description": "The learning rate halves every epoch, so it is effectively zero after a few epochs and the model under-trains."
+  },
+  "fix": [
+    {
+      "path": "train.py",
+      "search": "(0.5 ** epoch)",
+      "replace": "(0.95 ** epoch)"
+    }
+  ],
+  "hidden": {
+    "seed": 1234,
+    "tolerance": 0.06
+  }
+}

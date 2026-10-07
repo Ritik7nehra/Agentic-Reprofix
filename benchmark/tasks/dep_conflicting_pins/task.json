@@ -1,0 +1,34 @@
+{
+  "id": "dep_conflicting_pins",
+  "category": "dependency",
+  "title": "Contradictory numpy pins in requirements.txt",
+  "difficulty": "easy",
+  "goal": "Reproduce the documented experiment and determine why the validation accuracy does not match the documented result. Fix the repository so it reproduces the documented result.",
+  "command": "python train.py",
+  "metric": {
+    "name": "val_accuracy",
+    "expected": 0.881,
+    "tolerance": 0.03
+  },
+  "symptom": {
+    "kind": "install_failure"
+  },
+  "ground_truth": {
+    "category": "dependency",
+    "files": [
+      "requirements.txt"
+    ],
+    "description": "requirements.txt pins numpy==2.1.0 and numpy<2 at once, so pip cannot resolve it."
+  },
+  "fix": [
+    {
+      "path": "requirements.txt",
+      "search": "numpy==2.1.0\nnumpy<2\n",
+      "replace": "numpy>=1.26\n"
+    }
+  ],
+  "hidden": {
+    "seed": 1234,
+    "tolerance": 0.06
+  }
+}

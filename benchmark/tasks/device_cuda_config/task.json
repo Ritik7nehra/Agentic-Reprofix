@@ -1,0 +1,36 @@
+{
+  "id": "device_cuda_config",
+  "category": "device",
+  "title": "Simulated device mismatch: config asks for an accelerator the machine does not have",
+  "difficulty": "easy",
+  "goal": "Reproduce the documented experiment and determine why the validation accuracy does not match the documented result. Fix the repository so it reproduces the documented result.",
+  "command": "python train.py",
+  "metric": {
+    "name": "val_accuracy",
+    "expected": 0.881,
+    "tolerance": 0.03
+  },
+  "symptom": {
+    "kind": "crash",
+    "pattern": "not available"
+  },
+  "ground_truth": {
+    "category": "device",
+    "files": [
+      "config.json"
+    ],
+    "description": "config.json requests device 'cuda' but only 'cpu' exists on the machine running the experiment."
+  },
+  "fix": [
+    {
+      "path": "config.json",
+      "search": "\"device\": \"cuda\"",
+      "replace": "\"device\": \"cpu\""
+    }
+  ],
+  "hidden": {
+    "seed": 1234,
+    "tolerance": 0.06
+  },
+  "notes": "SIMULATED: device.py stands in for an accelerator check. No GPU, CUDA or PyTorch is involved; this tests the agent's handling of a config/hardware mismatch, not real GPU behaviour."
+}

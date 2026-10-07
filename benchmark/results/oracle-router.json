@@ -1,0 +1,1114 @@
+{
+  "meta": {
+    "label": "oracle-router",
+    "date": "2026-10-03 13:10",
+    "llm_backend": "scripted",
+    "router_mode": "router",
+    "sandbox": "local",
+    "models": "n/a (scripted)"
+  },
+  "n_tasks": 30,
+  "stages": {
+    "understood": 30,
+    "reproduced": 30,
+    "root_cause": 30,
+    "patch_generated": 30,
+    "patch_verified": 30
+  },
+  "by_category": {
+    "architecture": {
+      "n": 2,
+      "patch_verified": 2
+    },
+    "configuration": {
+      "n": 3,
+      "patch_verified": 3
+    },
+    "checkpoint": {
+      "n": 3,
+      "patch_verified": 3
+    },
+    "code": {
+      "n": 2,
+      "patch_verified": 2
+    },
+    "data": {
+      "n": 3,
+      "patch_verified": 3
+    },
+    "multi": {
+      "n": 1,
+      "patch_verified": 1
+    },
+    "dependency": {
+      "n": 3,
+      "patch_verified": 3
+    },
+    "device": {
+      "n": 1,
+      "patch_verified": 1
+    },
+    "evaluation": {
+      "n": 3,
+      "patch_verified": 3
+    },
+    "preprocessing": {
+      "n": 3,
+      "patch_verified": 3
+    },
+    "training": {
+      "n": 6,
+      "patch_verified": 6
+    }
+  },
+  "totals": {
+    "tokens": 0,
+    "llm_calls": 154,
+    "llm_latency_s": 0.0,
+    "wall_s": 305.9,
+    "cost_usd_priced_tiers": null,
+    "any_unpriced_tiers": false,
+    "mean_attempts": 1.07
+  },
+  "results": [
+    {
+      "id": "arch_classifier_dim",
+      "category": "architecture",
+      "difficulty": "easy",
+      "status": "verified",
+      "stages": {
+        "understood": true,
+        "reproduced": true,
+        "root_cause": true,
+        "patch_generated": true,
+        "patch_verified": true
+      },
+      "hidden_check": {
+        "passed": true,
+        "failures": [],
+        "hidden_seed_metric": 0.8675,
+        "recomputed": 0.8675
+      },
+      "attempts": 1,
+      "duration_s": 7.1,
+      "tokens": 0,
+      "llm_calls": 5,
+      "latency_llm_s": 0.0,
+      "cost_usd_priced_tiers": null,
+      "has_unpriced_tiers": false,
+      "tiers": {
+        "nano": 1,
+        "super": 4
+      },
+      "files_modified": [
+        "model.py"
+      ],
+      "error": null
+    },
+    {
+      "id": "arch_num_classes",
+      "category": "architecture",
+      "difficulty": "easy",
+      "status": "verified",
+      "stages": {
+        "understood": true,
+        "reproduced": true,
+        "root_cause": true,
+        "patch_generated": true,
+        "patch_verified": true
+      },
+      "hidden_check": {
+        "passed": true,
+        "failures": [],
+        "hidden_seed_metric": 0.8675,
+        "recomputed": 0.8675
+      },
+      "attempts": 1,
+      "duration_s": 7.2,
+      "tokens": 0,
+      "llm_calls": 5,
+      "latency_llm_s": 0.0,
+      "cost_usd_priced_tiers": null,
+      "has_unpriced_tiers": false,
+      "tiers": {
+        "nano": 1,
+        "super": 4
+      },
+      "files_modified": [
+        "config.json"
+      ],
+      "error": null
+    },
+    {
+      "id": "cfg_epochs",
+      "category": "configuration",
+      "difficulty": "medium",
+      "status": "verified",
+      "stages": {
+        "understood": true,
+        "reproduced": true,
+        "root_cause": true,
+        "patch_generated": true,
+        "patch_verified": true
+      },
+      "hidden_check": {
+        "passed": true,
+        "failures": [],
+        "hidden_seed_metric": 0.8675,
+        "recomputed": 0.8675
+      },
+      "attempts": 1,
+      "duration_s": 7.1,
+      "tokens": 0,
+      "llm_calls": 5,
+      "latency_llm_s": 0.0,
+      "cost_usd_priced_tiers": null,
+      "has_unpriced_tiers": false,
+      "tiers": {
+        "nano": 1,
+        "super": 3,
+        "ultra": 1
+      },
+      "files_modified": [
+        "config.json"
+      ],
+      "error": null
+    },
+    {
+      "id": "cfg_key_mismatch",
+      "category": "configuration",
+      "difficulty": "easy",
+      "status": "verified",
+      "stages": {
+        "understood": true,
+        "reproduced": true,
+        "root_cause": true,
+        "patch_generated": true,
+        "patch_verified": true
+      },
+      "hidden_check": {
+        "passed": true,
+        "failures": [],
+        "hidden_seed_metric": 0.8675,
+        "recomputed": 0.8675
+      },
+      "attempts": 1,
+      "duration_s": 7.0,
+      "tokens": 0,
+      "llm_calls": 5,
+      "latency_llm_s": 0.0,
+      "cost_usd_priced_tiers": null,
+      "has_unpriced_tiers": false,
+      "tiers": {
+        "nano": 1,
+        "super": 4
+      },
+      "files_modified": [
+        "config.json"
+      ],
+      "error": null
+    },
+    {
+      "id": "cfg_wrong_dtype",
+      "category": "configuration",
+      "difficulty": "easy",
+      "status": "verified",
+      "stages": {
+        "understood": true,
+        "reproduced": true,
+        "root_cause": true,
+        "patch_generated": true,
+        "patch_verified": true
+      },
+      "hidden_check": {
+        "passed": true,
+        "failures": [],
+        "hidden_seed_metric": 0.8675,
+        "recomputed": 0.8675
+      },
+      "attempts": 1,
+      "duration_s": 6.8,
+      "tokens": 0,
+      "llm_calls": 5,
+      "latency_llm_s": 0.0,
+      "cost_usd_priced_tiers": null,
+      "has_unpriced_tiers": false,
+      "tiers": {
+        "nano": 1,
+        "super": 4
+      },
+      "files_modified": [
+        "config.json"
+      ],
+      "error": null
+    },
+    {
+      "id": "ckpt_hidden_mismatch",
+      "category": "checkpoint",
+      "difficulty": "medium",
+      "status": "verified",
+      "stages": {
+        "understood": true,
+        "reproduced": true,
+        "root_cause": true,
+        "patch_generated": true,
+        "patch_verified": true
+      },
+      "hidden_check": {
+        "passed": true,
+        "failures": [],
+        "hidden_seed_metric": 0.886,
+        "recomputed": 0.886
+      },
+      "attempts": 1,
+      "duration_s": 7.0,
+      "tokens": 0,
+      "llm_calls": 5,
+      "latency_llm_s": 0.0,
+      "cost_usd_priced_tiers": null,
+      "has_unpriced_tiers": false,
+      "tiers": {
+        "nano": 1,
+        "super": 4
+      },
+      "files_modified": [
+        "config.json"
+      ],
+      "error": null
+    },
+    {
+      "id": "ckpt_key_names",
+      "category": "checkpoint",
+      "difficulty": "medium",
+      "status": "verified",
+      "stages": {
+        "understood": true,
+        "reproduced": true,
+        "root_cause": true,
+        "patch_generated": true,
+        "patch_verified": true
+      },
+      "hidden_check": {
+        "passed": true,
+        "failures": [],
+        "hidden_seed_metric": 0.886,
+        "recomputed": 0.886
+      },
+      "attempts": 1,
+      "duration_s": 7.0,
+      "tokens": 0,
+      "llm_calls": 5,
+      "latency_llm_s": 0.0,
+      "cost_usd_priced_tiers": null,
+      "has_unpriced_tiers": false,
+      "tiers": {
+        "nano": 1,
+        "super": 4
+      },
+      "files_modified": [
+        "model.py"
+      ],
+      "error": null
+    },
+    {
+      "id": "ckpt_wrong_path",
+      "category": "checkpoint",
+      "difficulty": "easy",
+      "status": "verified",
+      "stages": {
+        "understood": true,
+        "reproduced": true,
+        "root_cause": true,
+        "patch_generated": true,
+        "patch_verified": true
+      },
+      "hidden_check": {
+        "passed": true,
+        "failures": [],
+        "hidden_seed_metric": 0.886,
+        "recomputed": 0.886
+      },
+      "attempts": 1,
+      "duration_s": 7.1,
+      "tokens": 0,
+      "llm_calls": 5,
+      "latency_llm_s": 0.0,
+      "cost_usd_priced_tiers": null,
+      "has_unpriced_tiers": false,
+      "tiers": {
+        "nano": 1,
+        "super": 4
+      },
+      "files_modified": [
+        "eval.py"
+      ],
+      "error": null
+    },
+    {
+      "id": "code_none_shuffle",
+      "category": "code",
+      "difficulty": "easy",
+      "status": "verified",
+      "stages": {
+        "understood": true,
+        "reproduced": true,
+        "root_cause": true,
+        "patch_generated": true,
+        "patch_verified": true
+      },
+      "hidden_check": {
+        "passed": true,
+        "failures": [],
+        "hidden_seed_metric": 0.8675,
+        "recomputed": 0.8675
+      },
+      "attempts": 1,
+      "duration_s": 7.2,
+      "tokens": 0,
+      "llm_calls": 5,
+      "latency_llm_s": 0.0,
+      "cost_usd_priced_tiers": null,
+      "has_unpriced_tiers": false,
+      "tiers": {
+        "nano": 1,
+        "super": 4
+      },
+      "files_modified": [
+        "train.py"
+      ],
+      "error": null
+    },
+    {
+      "id": "code_off_by_one",
+      "category": "code",
+      "difficulty": "easy",
+      "status": "verified",
+      "stages": {
+        "understood": true,
+        "reproduced": true,
+        "root_cause": true,
+        "patch_generated": true,
+        "patch_verified": true
+      },
+      "hidden_check": {
+        "passed": true,
+        "failures": [],
+        "hidden_seed_metric": 0.8675,
+        "recomputed": 0.8675
+      },
+      "attempts": 1,
+      "duration_s": 7.3,
+      "tokens": 0,
+      "llm_calls": 5,
+      "latency_llm_s": 0.0,
+      "cost_usd_priced_tiers": null,
+      "has_unpriced_tiers": false,
+      "tiers": {
+        "nano": 1,
+        "super": 4
+      },
+      "files_modified": [
+        "train.py"
+      ],
+      "error": null
+    },
+    {
+      "id": "data_label_offset",
+      "category": "data",
+      "difficulty": "medium",
+      "status": "verified",
+      "stages": {
+        "understood": true,
+        "reproduced": true,
+        "root_cause": true,
+        "patch_generated": true,
+        "patch_verified": true
+      },
+      "hidden_check": {
+        "passed": true,
+        "failures": [],
+        "hidden_seed_metric": 0.8675,
+        "recomputed": 0.8675
+      },
+      "attempts": 1,
+      "duration_s": 7.5,
+      "tokens": 0,
+      "llm_calls": 5,
+      "latency_llm_s": 0.0,
+      "cost_usd_priced_tiers": null,
+      "has_unpriced_tiers": false,
+      "tiers": {
+        "nano": 1,
+        "super": 3,
+        "ultra": 1
+      },
+      "files_modified": [
+        "data.py"
+      ],
+      "error": null
+    },
+    {
+      "id": "data_label_shuffle",
+      "category": "data",
+      "difficulty": "medium",
+      "status": "verified",
+      "stages": {
+        "understood": true,
+        "reproduced": true,
+        "root_cause": true,
+        "patch_generated": true,
+        "patch_verified": true
+      },
+      "hidden_check": {
+        "passed": true,
+        "failures": [],
+        "hidden_seed_metric": 0.8675,
+        "recomputed": 0.8675
+      },
+      "attempts": 1,
+      "duration_s": 7.5,
+      "tokens": 0,
+      "llm_calls": 5,
+      "latency_llm_s": 0.0,
+      "cost_usd_priced_tiers": null,
+      "has_unpriced_tiers": false,
+      "tiers": {
+        "nano": 1,
+        "super": 3,
+        "ultra": 1
+      },
+      "files_modified": [
+        "data.py"
+      ],
+      "error": null
+    },
+    {
+      "id": "data_val_labels",
+      "category": "data",
+      "difficulty": "medium",
+      "status": "verified",
+      "stages": {
+        "understood": true,
+        "reproduced": true,
+        "root_cause": true,
+        "patch_generated": true,
+        "patch_verified": true
+      },
+      "hidden_check": {
+        "passed": true,
+        "failures": [],
+        "hidden_seed_metric": 0.8675,
+        "recomputed": 0.8675
+      },
+      "attempts": 1,
+      "duration_s": 7.5,
+      "tokens": 0,
+      "llm_calls": 5,
+      "latency_llm_s": 0.0,
+      "cost_usd_priced_tiers": null,
+      "has_unpriced_tiers": false,
+      "tiers": {
+        "nano": 1,
+        "super": 3,
+        "ultra": 1
+      },
+      "files_modified": [
+        "data.py"
+      ],
+      "error": null
+    },
+    {
+      "id": "demo_broken_image_classifier",
+      "category": "multi",
+      "difficulty": "hard",
+      "status": "verified",
+      "stages": {
+        "understood": true,
+        "reproduced": true,
+        "root_cause": true,
+        "patch_generated": true,
+        "patch_verified": true
+      },
+      "hidden_check": {
+        "passed": true,
+        "failures": [],
+        "hidden_seed_metric": 0.8675,
+        "recomputed": 0.8675
+      },
+      "attempts": 3,
+      "duration_s": 9.3,
+      "tokens": 0,
+      "llm_calls": 9,
+      "latency_llm_s": 0.0,
+      "cost_usd_priced_tiers": null,
+      "has_unpriced_tiers": false,
+      "tiers": {
+        "nano": 1,
+        "super": 7,
+        "ultra": 1
+      },
+      "files_modified": [
+        "model.py",
+        "preprocess.py",
+        "requirements.txt"
+      ],
+      "error": null
+    },
+    {
+      "id": "dep_conflicting_pins",
+      "category": "dependency",
+      "difficulty": "easy",
+      "status": "verified",
+      "stages": {
+        "understood": true,
+        "reproduced": true,
+        "root_cause": true,
+        "patch_generated": true,
+        "patch_verified": true
+      },
+      "hidden_check": {
+        "passed": true,
+        "failures": [],
+        "hidden_seed_metric": 0.8675,
+        "recomputed": 0.8675
+      },
+      "attempts": 1,
+      "duration_s": 8.0,
+      "tokens": 0,
+      "llm_calls": 5,
+      "latency_llm_s": 0.0,
+      "cost_usd_priced_tiers": null,
+      "has_unpriced_tiers": false,
+      "tiers": {
+        "nano": 1,
+        "super": 4
+      },
+      "files_modified": [
+        "requirements.txt"
+      ],
+      "error": null
+    },
+    {
+      "id": "dep_missing_requirement",
+      "category": "dependency",
+      "difficulty": "medium",
+      "status": "verified",
+      "stages": {
+        "understood": true,
+        "reproduced": true,
+        "root_cause": true,
+        "patch_generated": true,
+        "patch_verified": true
+      },
+      "hidden_check": {
+        "passed": true,
+        "failures": [],
+        "hidden_seed_metric": 0.8675,
+        "recomputed": 0.8675
+      },
+      "attempts": 1,
+      "duration_s": 12.9,
+      "tokens": 0,
+      "llm_calls": 5,
+      "latency_llm_s": 0.0,
+      "cost_usd_priced_tiers": null,
+      "has_unpriced_tiers": false,
+      "tiers": {
+        "nano": 1,
+        "super": 4
+      },
+      "files_modified": [
+        "requirements.txt"
+      ],
+      "error": null
+    },
+    {
+      "id": "dep_nonexistent_version",
+      "category": "dependency",
+      "difficulty": "easy",
+      "status": "verified",
+      "stages": {
+        "understood": true,
+        "reproduced": true,
+        "root_cause": true,
+        "patch_generated": true,
+        "patch_verified": true
+      },
+      "hidden_check": {
+        "passed": true,
+        "failures": [],
+        "hidden_seed_metric": 0.8675,
+        "recomputed": 0.8675
+      },
+      "attempts": 1,
+      "duration_s": 7.6,
+      "tokens": 0,
+      "llm_calls": 5,
+      "latency_llm_s": 0.0,
+      "cost_usd_priced_tiers": null,
+      "has_unpriced_tiers": false,
+      "tiers": {
+        "nano": 1,
+        "super": 4
+      },
+      "files_modified": [
+        "requirements.txt"
+      ],
+      "error": null
+    },
+    {
+      "id": "device_cuda_config",
+      "category": "device",
+      "difficulty": "easy",
+      "status": "verified",
+      "stages": {
+        "understood": true,
+        "reproduced": true,
+        "root_cause": true,
+        "patch_generated": true,
+        "patch_verified": true
+      },
+      "hidden_check": {
+        "passed": true,
+        "failures": [],
+        "hidden_seed_metric": 0.8675,
+        "recomputed": 0.8675
+      },
+      "attempts": 1,
+      "duration_s": 7.2,
+      "tokens": 0,
+      "llm_calls": 5,
+      "latency_llm_s": 0.0,
+      "cost_usd_priced_tiers": null,
+      "has_unpriced_tiers": false,
+      "tiers": {
+        "nano": 1,
+        "super": 4
+      },
+      "files_modified": [
+        "config.json"
+      ],
+      "error": null
+    },
+    {
+      "id": "eval_floor_division",
+      "category": "evaluation",
+      "difficulty": "easy",
+      "status": "verified",
+      "stages": {
+        "understood": true,
+        "reproduced": true,
+        "root_cause": true,
+        "patch_generated": true,
+        "patch_verified": true
+      },
+      "hidden_check": {
+        "passed": true,
+        "failures": [],
+        "hidden_seed_metric": 0.8675,
+        "recomputed": 0.8675
+      },
+      "attempts": 1,
+      "duration_s": 7.3,
+      "tokens": 0,
+      "llm_calls": 5,
+      "latency_llm_s": 0.0,
+      "cost_usd_priced_tiers": null,
+      "has_unpriced_tiers": false,
+      "tiers": {
+        "nano": 1,
+        "super": 3,
+        "ultra": 1
+      },
+      "files_modified": [
+        "metrics.py"
+      ],
+      "error": null
+    },
+    {
+      "id": "eval_inverted_metric",
+      "category": "evaluation",
+      "difficulty": "easy",
+      "status": "verified",
+      "stages": {
+        "understood": true,
+        "reproduced": true,
+        "root_cause": true,
+        "patch_generated": true,
+        "patch_verified": true
+      },
+      "hidden_check": {
+        "passed": true,
+        "failures": [],
+        "hidden_seed_metric": 0.8675,
+        "recomputed": 0.8675
+      },
+      "attempts": 1,
+      "duration_s": 7.4,
+      "tokens": 0,
+      "llm_calls": 5,
+      "latency_llm_s": 0.0,
+      "cost_usd_priced_tiers": null,
+      "has_unpriced_tiers": false,
+      "tiers": {
+        "nano": 1,
+        "super": 3,
+        "ultra": 1
+      },
+      "files_modified": [
+        "metrics.py"
+      ],
+      "error": null
+    },
+    {
+      "id": "eval_on_train_split",
+      "category": "evaluation",
+      "difficulty": "medium",
+      "status": "verified",
+      "stages": {
+        "understood": true,
+        "reproduced": true,
+        "root_cause": true,
+        "patch_generated": true,
+        "patch_verified": true
+      },
+      "hidden_check": {
+        "passed": true,
+        "failures": [],
+        "hidden_seed_metric": 0.8675,
+        "recomputed": 0.8675
+      },
+      "attempts": 1,
+      "duration_s": 7.3,
+      "tokens": 0,
+      "llm_calls": 5,
+      "latency_llm_s": 0.0,
+      "cost_usd_priced_tiers": null,
+      "has_unpriced_tiers": false,
+      "tiers": {
+        "nano": 1,
+        "super": 3,
+        "ultra": 1
+      },
+      "files_modified": [
+        "train.py"
+      ],
+      "error": null
+    },
+    {
+      "id": "pre_double_scaling",
+      "category": "preprocessing",
+      "difficulty": "medium",
+      "status": "verified",
+      "stages": {
+        "understood": true,
+        "reproduced": true,
+        "root_cause": true,
+        "patch_generated": true,
+        "patch_verified": true
+      },
+      "hidden_check": {
+        "passed": true,
+        "failures": [],
+        "hidden_seed_metric": 0.8675,
+        "recomputed": 0.8675
+      },
+      "attempts": 1,
+      "duration_s": 7.5,
+      "tokens": 0,
+      "llm_calls": 5,
+      "latency_llm_s": 0.0,
+      "cost_usd_priced_tiers": null,
+      "has_unpriced_tiers": false,
+      "tiers": {
+        "nano": 1,
+        "super": 3,
+        "ultra": 1
+      },
+      "files_modified": [
+        "preprocess.py"
+      ],
+      "error": null
+    },
+    {
+      "id": "pre_val_not_normalized",
+      "category": "preprocessing",
+      "difficulty": "medium",
+      "status": "verified",
+      "stages": {
+        "understood": true,
+        "reproduced": true,
+        "root_cause": true,
+        "patch_generated": true,
+        "patch_verified": true
+      },
+      "hidden_check": {
+        "passed": true,
+        "failures": [],
+        "hidden_seed_metric": 0.8675,
+        "recomputed": 0.8675
+      },
+      "attempts": 1,
+      "duration_s": 7.1,
+      "tokens": 0,
+      "llm_calls": 5,
+      "latency_llm_s": 0.0,
+      "cost_usd_priced_tiers": null,
+      "has_unpriced_tiers": false,
+      "tiers": {
+        "nano": 1,
+        "super": 3,
+        "ultra": 1
+      },
+      "files_modified": [
+        "preprocess.py"
+      ],
+      "error": null
+    },
+    {
+      "id": "pre_wrong_normalization",
+      "category": "preprocessing",
+      "difficulty": "medium",
+      "status": "verified",
+      "stages": {
+        "understood": true,
+        "reproduced": true,
+        "root_cause": true,
+        "patch_generated": true,
+        "patch_verified": true
+      },
+      "hidden_check": {
+        "passed": true,
+        "failures": [],
+        "hidden_seed_metric": 0.8675,
+        "recomputed": 0.8675
+      },
+      "attempts": 1,
+      "duration_s": 7.5,
+      "tokens": 0,
+      "llm_calls": 5,
+      "latency_llm_s": 0.0,
+      "cost_usd_priced_tiers": null,
+      "has_unpriced_tiers": false,
+      "tiers": {
+        "nano": 1,
+        "super": 3,
+        "ultra": 1
+      },
+      "files_modified": [
+        "preprocess.py"
+      ],
+      "error": null
+    },
+    {
+      "id": "torch_double_softmax",
+      "category": "training",
+      "difficulty": "medium",
+      "status": "verified",
+      "stages": {
+        "understood": true,
+        "reproduced": true,
+        "root_cause": true,
+        "patch_generated": true,
+        "patch_verified": true
+      },
+      "hidden_check": {
+        "passed": true,
+        "failures": [],
+        "hidden_seed_metric": 0.941,
+        "recomputed": 0.941
+      },
+      "attempts": 1,
+      "duration_s": 87.6,
+      "tokens": 0,
+      "llm_calls": 5,
+      "latency_llm_s": 0.0,
+      "cost_usd_priced_tiers": null,
+      "has_unpriced_tiers": false,
+      "tiers": {
+        "nano": 1,
+        "super": 3,
+        "ultra": 1
+      },
+      "files_modified": [
+        "model.py"
+      ],
+      "error": null
+    },
+    {
+      "id": "train_init_scale",
+      "category": "training",
+      "difficulty": "medium",
+      "status": "verified",
+      "stages": {
+        "understood": true,
+        "reproduced": true,
+        "root_cause": true,
+        "patch_generated": true,
+        "patch_verified": true
+      },
+      "hidden_check": {
+        "passed": true,
+        "failures": [],
+        "hidden_seed_metric": 0.8675,
+        "recomputed": 0.8675
+      },
+      "attempts": 1,
+      "duration_s": 7.1,
+      "tokens": 0,
+      "llm_calls": 5,
+      "latency_llm_s": 0.0,
+      "cost_usd_priced_tiers": null,
+      "has_unpriced_tiers": false,
+      "tiers": {
+        "nano": 1,
+        "super": 3,
+        "ultra": 1
+      },
+      "files_modified": [
+        "model.py"
+      ],
+      "error": null
+    },
+    {
+      "id": "train_lr_schedule",
+      "category": "training",
+      "difficulty": "medium",
+      "status": "verified",
+      "stages": {
+        "understood": true,
+        "reproduced": true,
+        "root_cause": true,
+        "patch_generated": true,
+        "patch_verified": true
+      },
+      "hidden_check": {
+        "passed": true,
+        "failures": [],
+        "hidden_seed_metric": 0.8675,
+        "recomputed": 0.8675
+      },
+      "attempts": 1,
+      "duration_s": 7.2,
+      "tokens": 0,
+      "llm_calls": 5,
+      "latency_llm_s": 0.0,
+      "cost_usd_priced_tiers": null,
+      "has_unpriced_tiers": false,
+      "tiers": {
+        "nano": 1,
+        "super": 3,
+        "ultra": 1
+      },
+      "files_modified": [
+        "train.py"
+      ],
+      "error": null
+    },
+    {
+      "id": "train_lr_too_high",
+      "category": "training",
+      "difficulty": "easy",
+      "status": "verified",
+      "stages": {
+        "understood": true,
+        "reproduced": true,
+        "root_cause": true,
+        "patch_generated": true,
+        "patch_verified": true
+      },
+      "hidden_check": {
+        "passed": true,
+        "failures": [],
+        "hidden_seed_metric": 0.8675,
+        "recomputed": 0.8675
+      },
+      "attempts": 1,
+      "duration_s": 7.0,
+      "tokens": 0,
+      "llm_calls": 5,
+      "latency_llm_s": 0.0,
+      "cost_usd_priced_tiers": null,
+      "has_unpriced_tiers": false,
+      "tiers": {
+        "nano": 1,
+        "super": 3,
+        "ultra": 1
+      },
+      "files_modified": [
+        "config.json"
+      ],
+      "error": null
+    },
+    {
+      "id": "train_model_reinit",
+      "category": "training",
+      "difficulty": "medium",
+      "status": "verified",
+      "stages": {
+        "understood": true,
+        "reproduced": true,
+        "root_cause": true,
+        "patch_generated": true,
+        "patch_verified": true
+      },
+      "hidden_check": {
+        "passed": true,
+        "failures": [],
+        "hidden_seed_metric": 0.8675,
+        "recomputed": 0.8675
+      },
+      "attempts": 1,
+      "duration_s": 7.3,
+      "tokens": 0,
+      "llm_calls": 5,
+      "latency_llm_s": 0.0,
+      "cost_usd_priced_tiers": null,
+      "has_unpriced_tiers": false,
+      "tiers": {
+        "nano": 1,
+        "super": 3,
+        "ultra": 1
+      },
+      "files_modified": [
+        "train.py"
+      ],
+      "error": null
+    },
+    {
+      "id": "train_update_sign",
+      "category": "training",
+      "difficulty": "hard",
+      "status": "verified",
+      "stages": {
+        "understood": true,
+        "reproduced": true,
+        "root_cause": true,
+        "patch_generated": true,
+        "patch_verified": true
+      },
+      "hidden_check": {
+        "passed": true,
+        "failures": [],
+        "hidden_seed_metric": 0.8675,
+        "recomputed": 0.8675
+      },
+      "attempts": 1,
+      "duration_s": 7.3,
+      "tokens": 0,
+      "llm_calls": 5,
+      "latency_llm_s": 0.0,
+      "cost_usd_priced_tiers": null,
+      "has_unpriced_tiers": false,
+      "tiers": {
+        "nano": 1,
+        "super": 3,
+        "ultra": 1
+      },
+      "files_modified": [
+        "model.py"
+      ],
+      "error": null
+    }
+  ]
+}

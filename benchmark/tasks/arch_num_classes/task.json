@@ -1,0 +1,35 @@
+{
+  "id": "arch_num_classes",
+  "category": "architecture",
+  "title": "num_classes in config smaller than the number of classes in the data",
+  "difficulty": "easy",
+  "goal": "Reproduce the documented experiment and determine why the validation accuracy does not match the documented result. Fix the repository so it reproduces the documented result.",
+  "command": "python train.py",
+  "metric": {
+    "name": "val_accuracy",
+    "expected": 0.881,
+    "tolerance": 0.03
+  },
+  "symptom": {
+    "kind": "crash",
+    "pattern": "IndexError|out of bounds"
+  },
+  "ground_truth": {
+    "category": "architecture",
+    "files": [
+      "config.json"
+    ],
+    "description": "The output layer has 5 units but labels run 0-9."
+  },
+  "fix": [
+    {
+      "path": "config.json",
+      "search": "\"num_classes\": 5",
+      "replace": "\"num_classes\": 10"
+    }
+  ],
+  "hidden": {
+    "seed": 1234,
+    "tolerance": 0.06
+  }
+}

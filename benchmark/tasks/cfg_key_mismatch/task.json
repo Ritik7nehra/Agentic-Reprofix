@@ -1,0 +1,35 @@
+{
+  "id": "cfg_key_mismatch",
+  "category": "configuration",
+  "title": "config.json uses 'learning_rate' but train.py reads 'lr'",
+  "difficulty": "easy",
+  "goal": "Reproduce the documented experiment and determine why the validation accuracy does not match the documented result. Fix the repository so it reproduces the documented result.",
+  "command": "python train.py",
+  "metric": {
+    "name": "val_accuracy",
+    "expected": 0.881,
+    "tolerance": 0.03
+  },
+  "symptom": {
+    "kind": "crash",
+    "pattern": "KeyError"
+  },
+  "ground_truth": {
+    "category": "configuration",
+    "files": [
+      "config.json"
+    ],
+    "description": "The config key was renamed without updating the code that reads it."
+  },
+  "fix": [
+    {
+      "path": "config.json",
+      "search": "\"learning_rate\": 0.1",
+      "replace": "\"lr\": 0.1"
+    }
+  ],
+  "hidden": {
+    "seed": 1234,
+    "tolerance": 0.06
+  }
+}

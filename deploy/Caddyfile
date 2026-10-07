@@ -1,0 +1,8 @@
+# TLS termination for ReproFix. Caddy obtains and renews the certificate for $REPROFIX_DOMAIN automatically;
+# the name must resolve to this machine and ports 80 and 443 must be reachable from the internet.
+{$REPROFIX_DOMAIN} {
+	reverse_proxy reprofix:8000 {
+		# The run page streams progress as Server-Sent Events; never buffer them.
+		flush_interval -1
+	}
+}

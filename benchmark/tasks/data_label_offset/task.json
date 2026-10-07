@@ -1,0 +1,34 @@
+{
+  "id": "data_label_offset",
+  "category": "data",
+  "title": "Training labels shifted by one; validation labels are not",
+  "difficulty": "medium",
+  "goal": "Reproduce the documented experiment and determine why the validation accuracy does not match the documented result. Fix the repository so it reproduces the documented result.",
+  "command": "python train.py",
+  "metric": {
+    "name": "val_accuracy",
+    "expected": 0.881,
+    "tolerance": 0.03
+  },
+  "symptom": {
+    "kind": "wrong_result"
+  },
+  "ground_truth": {
+    "category": "data",
+    "files": [
+      "data.py"
+    ],
+    "description": "Only the training split is shifted to 1-based class ids, so the model learns a permutation of the real classes."
+  },
+  "fix": [
+    {
+      "path": "data.py",
+      "search": "    y_train = (y_train + 1) % NUM_CLASSES  # class ids in the label file start at 1\n",
+      "replace": ""
+    }
+  ],
+  "hidden": {
+    "seed": 1234,
+    "tolerance": 0.06
+  }
+}

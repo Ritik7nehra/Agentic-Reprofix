@@ -1,0 +1,35 @@
+{
+  "id": "code_off_by_one",
+  "category": "code",
+  "title": "Off-by-one when printing the last loss",
+  "difficulty": "easy",
+  "goal": "Reproduce the documented experiment and determine why the validation accuracy does not match the documented result. Fix the repository so it reproduces the documented result.",
+  "command": "python train.py",
+  "metric": {
+    "name": "val_accuracy",
+    "expected": 0.881,
+    "tolerance": 0.03
+  },
+  "symptom": {
+    "kind": "crash",
+    "pattern": "IndexError"
+  },
+  "ground_truth": {
+    "category": "code",
+    "files": [
+      "train.py"
+    ],
+    "description": "losses[len(losses)] is one past the end of the list."
+  },
+  "fix": [
+    {
+      "path": "train.py",
+      "search": "losses[len(losses)]",
+      "replace": "losses[-1]"
+    }
+  ],
+  "hidden": {
+    "seed": 1234,
+    "tolerance": 0.06
+  }
+}

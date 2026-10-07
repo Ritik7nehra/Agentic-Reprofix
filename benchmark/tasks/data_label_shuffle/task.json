@@ -1,0 +1,34 @@
+{
+  "id": "data_label_shuffle",
+  "category": "data",
+  "title": "Training labels shuffled independently of the images",
+  "difficulty": "medium",
+  "goal": "Reproduce the documented experiment and determine why the validation accuracy does not match the documented result. Fix the repository so it reproduces the documented result.",
+  "command": "python train.py",
+  "metric": {
+    "name": "val_accuracy",
+    "expected": 0.881,
+    "tolerance": 0.03
+  },
+  "symptom": {
+    "kind": "wrong_result"
+  },
+  "ground_truth": {
+    "category": "data",
+    "files": [
+      "data.py"
+    ],
+    "description": "Permuting y_train alone breaks the image/label pairing, so the model learns noise."
+  },
+  "fix": [
+    {
+      "path": "data.py",
+      "search": "    y_train = rng.permutation(y_train)  # shuffle for randomness\n",
+      "replace": ""
+    }
+  ],
+  "hidden": {
+    "seed": 1234,
+    "tolerance": 0.06
+  }
+}

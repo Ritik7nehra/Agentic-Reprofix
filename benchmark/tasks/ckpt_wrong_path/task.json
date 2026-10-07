@@ -1,0 +1,35 @@
+{
+  "id": "ckpt_wrong_path",
+  "category": "checkpoint",
+  "title": "Evaluation script loads the checkpoint from a directory that does not exist",
+  "difficulty": "easy",
+  "goal": "Reproduce the documented experiment and determine why the validation accuracy does not match the documented result. Fix the repository so it reproduces the documented result.",
+  "command": "python eval.py",
+  "metric": {
+    "name": "val_accuracy",
+    "expected": 0.881,
+    "tolerance": 0.03
+  },
+  "symptom": {
+    "kind": "crash",
+    "pattern": "FileNotFoundError|No such file"
+  },
+  "ground_truth": {
+    "category": "checkpoint",
+    "files": [
+      "eval.py"
+    ],
+    "description": "eval.py reads checkpoints/model.npz, but the released checkpoint is model.npz at the repository root."
+  },
+  "fix": [
+    {
+      "path": "eval.py",
+      "search": "np.load(\"checkpoints/model.npz\")",
+      "replace": "np.load(\"model.npz\")"
+    }
+  ],
+  "hidden": {
+    "seed": 1234,
+    "tolerance": 0.06
+  }
+}

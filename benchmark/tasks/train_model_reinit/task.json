@@ -1,0 +1,34 @@
+{
+  "id": "train_model_reinit",
+  "category": "training",
+  "title": "Model re-initialised at the start of every epoch",
+  "difficulty": "medium",
+  "goal": "Reproduce the documented experiment and determine why the validation accuracy does not match the documented result. Fix the repository so it reproduces the documented result.",
+  "command": "python train.py",
+  "metric": {
+    "name": "val_accuracy",
+    "expected": 0.881,
+    "tolerance": 0.03
+  },
+  "symptom": {
+    "kind": "wrong_result"
+  },
+  "ground_truth": {
+    "category": "training",
+    "files": [
+      "train.py"
+    ],
+    "description": "Constructing the model inside the epoch loop throws away all learning except the final epoch."
+  },
+  "fix": [
+    {
+      "path": "train.py",
+      "search": "        model = MLP(x_train.shape[1], cfg[\"hidden\"], cfg[\"num_classes\"], rng)\n        lr =",
+      "replace": "        lr ="
+    }
+  ],
+  "hidden": {
+    "seed": 1234,
+    "tolerance": 0.06
+  }
+}

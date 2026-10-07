@@ -1,0 +1,34 @@
+{
+  "id": "cfg_epochs",
+  "category": "configuration",
+  "title": "epochs set to 1 although the README documents 30",
+  "difficulty": "medium",
+  "goal": "Reproduce the documented experiment and determine why the validation accuracy does not match the documented result. Fix the repository so it reproduces the documented result.",
+  "command": "python train.py",
+  "metric": {
+    "name": "val_accuracy",
+    "expected": 0.881,
+    "tolerance": 0.03
+  },
+  "symptom": {
+    "kind": "wrong_result"
+  },
+  "ground_truth": {
+    "category": "configuration",
+    "files": [
+      "config.json"
+    ],
+    "description": "The model is under-trained because config.json no longer matches the documented setup."
+  },
+  "fix": [
+    {
+      "path": "config.json",
+      "search": "\"epochs\": 1",
+      "replace": "\"epochs\": 30"
+    }
+  ],
+  "hidden": {
+    "seed": 1234,
+    "tolerance": 0.06
+  }
+}

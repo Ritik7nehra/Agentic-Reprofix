@@ -1,0 +1,34 @@
+{
+  "id": "train_update_sign",
+  "category": "training",
+  "title": "Gradient ascent on the output weights",
+  "difficulty": "hard",
+  "goal": "Reproduce the documented experiment and determine why the validation accuracy does not match the documented result. Fix the repository so it reproduces the documented result.",
+  "command": "python train.py",
+  "metric": {
+    "name": "val_accuracy",
+    "expected": 0.881,
+    "tolerance": 0.03
+  },
+  "symptom": {
+    "kind": "wrong_result"
+  },
+  "ground_truth": {
+    "category": "training",
+    "files": [
+      "model.py"
+    ],
+    "description": "W2 is updated with the wrong sign, so the loss increases for the output layer."
+  },
+  "fix": [
+    {
+      "path": "model.py",
+      "search": "self.W2 += lr * dW2",
+      "replace": "self.W2 -= lr * dW2"
+    }
+  ],
+  "hidden": {
+    "seed": 1234,
+    "tolerance": 0.06
+  }
+}

@@ -1,0 +1,34 @@
+{
+  "id": "pre_wrong_normalization",
+  "category": "preprocessing",
+  "title": "Generic 0.5/0.5 normalisation instead of the dataset statistics",
+  "difficulty": "medium",
+  "goal": "Reproduce the documented experiment and determine why the validation accuracy does not match the documented result. Fix the repository so it reproduces the documented result.",
+  "command": "python train.py",
+  "metric": {
+    "name": "val_accuracy",
+    "expected": 0.881,
+    "tolerance": 0.03
+  },
+  "symptom": {
+    "kind": "wrong_result"
+  },
+  "ground_truth": {
+    "category": "preprocessing",
+    "files": [
+      "preprocess.py"
+    ],
+    "description": "Pixels in [0,255] are normalised with mean=0.5/std=0.5 rather than PIXEL_MEAN/PIXEL_STD."
+  },
+  "fix": [
+    {
+      "path": "preprocess.py",
+      "search": "    return (x - 0.5) / 0.5",
+      "replace": "    return (x - PIXEL_MEAN) / PIXEL_STD"
+    }
+  ],
+  "hidden": {
+    "seed": 1234,
+    "tolerance": 0.06
+  }
+}

@@ -1,0 +1,34 @@
+{
+  "id": "eval_floor_division",
+  "category": "evaluation",
+  "title": "Accuracy computed with floor division",
+  "difficulty": "easy",
+  "goal": "Reproduce the documented experiment and determine why the validation accuracy does not match the documented result. Fix the repository so it reproduces the documented result.",
+  "command": "python train.py",
+  "metric": {
+    "name": "val_accuracy",
+    "expected": 0.881,
+    "tolerance": 0.03
+  },
+  "symptom": {
+    "kind": "wrong_result"
+  },
+  "ground_truth": {
+    "category": "evaluation",
+    "files": [
+      "metrics.py"
+    ],
+    "description": "`//` truncates the accuracy to 0 (or 1)."
+  },
+  "fix": [
+    {
+      "path": "metrics.py",
+      "search": "np.sum(preds == labels) // len(labels)",
+      "replace": "np.sum(preds == labels) / len(labels)"
+    }
+  ],
+  "hidden": {
+    "seed": 1234,
+    "tolerance": 0.06
+  }
+}

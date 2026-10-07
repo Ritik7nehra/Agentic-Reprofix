@@ -1,0 +1,35 @@
+{
+  "id": "cfg_wrong_dtype",
+  "category": "configuration",
+  "title": "Hidden size stored as a string in config.json",
+  "difficulty": "easy",
+  "goal": "Reproduce the documented experiment and determine why the validation accuracy does not match the documented result. Fix the repository so it reproduces the documented result.",
+  "command": "python train.py",
+  "metric": {
+    "name": "val_accuracy",
+    "expected": 0.881,
+    "tolerance": 0.03
+  },
+  "symptom": {
+    "kind": "crash",
+    "pattern": "TypeError"
+  },
+  "ground_truth": {
+    "category": "configuration",
+    "files": [
+      "config.json"
+    ],
+    "description": "\"hidden\" is the string \"64\", which numpy cannot use as an array dimension."
+  },
+  "fix": [
+    {
+      "path": "config.json",
+      "search": "\"hidden\": \"64\"",
+      "replace": "\"hidden\": 64"
+    }
+  ],
+  "hidden": {
+    "seed": 1234,
+    "tolerance": 0.06
+  }
+}

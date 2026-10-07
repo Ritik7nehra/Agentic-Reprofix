@@ -1,0 +1,41 @@
+{
+  "id": "torch_double_softmax",
+  "category": "training",
+  "title": "PyTorch: model returns probabilities but the loss expects logits",
+  "difficulty": "medium",
+  "goal": "Reproduce the documented experiment and determine why the validation accuracy does not match the documented result. Fix the repository so it reproduces the documented result.",
+  "command": "python train.py",
+  "metric": {
+    "name": "val_accuracy",
+    "expected": 0.939,
+    "tolerance": 0.03
+  },
+  "symptom": {
+    "kind": "wrong_result"
+  },
+  "ground_truth": {
+    "category": "training",
+    "files": [
+      "model.py"
+    ],
+    "description": "MLP.forward applies softmax, then CrossEntropyLoss applies log-softmax again, so the gradients are tiny and the model barely learns."
+  },
+  "fix": [
+    {
+      "path": "model.py",
+      "search": "import torch\nfrom torch import nn\n",
+      "replace": "from torch import nn\n"
+    },
+    {
+      "path": "model.py",
+      "search": "        return torch.softmax(self.net(x), dim=1)\n",
+      "replace": "        return self.net(x)\n"
+    }
+  ],
+  "hidden": {
+    "seed": 1234,
+    "tolerance": 0.06
+  },
+  "timeout_s": 1200,
+  "notes": "REAL PyTorch on CPU. Needs the PyPI torch wheel (about 5 GB installed on Linux x86-64 with the CUDA runtime bundled, several minutes to install); it runs on the CPU and needs no GPU. Installing its requirements is the only large download in the benchmark."
+}

@@ -1,0 +1,34 @@
+{
+  "id": "dep_nonexistent_version",
+  "category": "dependency",
+  "title": "Pinned numpy version that does not exist",
+  "difficulty": "easy",
+  "goal": "Reproduce the documented experiment and determine why the validation accuracy does not match the documented result. Fix the repository so it reproduces the documented result.",
+  "command": "python train.py",
+  "metric": {
+    "name": "val_accuracy",
+    "expected": 0.881,
+    "tolerance": 0.03
+  },
+  "symptom": {
+    "kind": "install_failure"
+  },
+  "ground_truth": {
+    "category": "dependency",
+    "files": [
+      "requirements.txt"
+    ],
+    "description": "numpy==9.9.9 does not exist on the package index."
+  },
+  "fix": [
+    {
+      "path": "requirements.txt",
+      "search": "numpy==9.9.9\n",
+      "replace": "numpy>=1.26\n"
+    }
+  ],
+  "hidden": {
+    "seed": 1234,
+    "tolerance": 0.06
+  }
+}

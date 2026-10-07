@@ -1,0 +1,35 @@
+{
+  "id": "ckpt_hidden_mismatch",
+  "category": "checkpoint",
+  "title": "config hidden size differs from the released checkpoint",
+  "difficulty": "medium",
+  "goal": "Reproduce the documented experiment and determine why the validation accuracy does not match the documented result. Fix the repository so it reproduces the documented result.",
+  "command": "python eval.py",
+  "metric": {
+    "name": "val_accuracy",
+    "expected": 0.881,
+    "tolerance": 0.03
+  },
+  "symptom": {
+    "kind": "crash",
+    "pattern": "do not match model|shape"
+  },
+  "ground_truth": {
+    "category": "checkpoint",
+    "files": [
+      "config.json"
+    ],
+    "description": "The checkpoint was trained with hidden=64 but config.json says 32."
+  },
+  "fix": [
+    {
+      "path": "config.json",
+      "search": "\"hidden\": 32",
+      "replace": "\"hidden\": 64"
+    }
+  ],
+  "hidden": {
+    "seed": 1234,
+    "tolerance": 0.06
+  }
+}

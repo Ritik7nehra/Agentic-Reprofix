@@ -1,0 +1,35 @@
+{
+  "id": "ckpt_key_names",
+  "category": "checkpoint",
+  "title": "Checkpoint keys are lowercase but the loader asks for uppercase",
+  "difficulty": "medium",
+  "goal": "Reproduce the documented experiment and determine why the validation accuracy does not match the documented result. Fix the repository so it reproduces the documented result.",
+  "command": "python eval.py",
+  "metric": {
+    "name": "val_accuracy",
+    "expected": 0.881,
+    "tolerance": 0.03
+  },
+  "symptom": {
+    "kind": "crash",
+    "pattern": "KeyError|not a file in the archive"
+  },
+  "ground_truth": {
+    "category": "checkpoint",
+    "files": [
+      "model.py"
+    ],
+    "description": "load_state_dict looks up W1/B1/W2/B2 while the released checkpoint stores w1/b1/w2/b2."
+  },
+  "fix": [
+    {
+      "path": "model.py",
+      "search": "state[\"W1\"], state[\"B1\"], state[\"W2\"], state[\"B2\"]",
+      "replace": "state[\"w1\"], state[\"b1\"], state[\"w2\"], state[\"b2\"]"
+    }
+  ],
+  "hidden": {
+    "seed": 1234,
+    "tolerance": 0.06
+  }
+}

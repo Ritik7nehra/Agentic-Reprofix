@@ -1,0 +1,35 @@
+{
+  "id": "dep_missing_requirement",
+  "category": "dependency",
+  "title": "train.py imports tqdm but requirements.txt omits it",
+  "difficulty": "medium",
+  "goal": "Reproduce the documented experiment and determine why the validation accuracy does not match the documented result. Fix the repository so it reproduces the documented result.",
+  "command": "python train.py",
+  "metric": {
+    "name": "val_accuracy",
+    "expected": 0.881,
+    "tolerance": 0.03
+  },
+  "symptom": {
+    "kind": "crash",
+    "pattern": "No module named 'tqdm'"
+  },
+  "ground_truth": {
+    "category": "dependency",
+    "files": [
+      "requirements.txt"
+    ],
+    "description": "tqdm is imported by train.py but never declared as a requirement."
+  },
+  "fix": [
+    {
+      "path": "requirements.txt",
+      "search": "pytest>=8\n",
+      "replace": "pytest>=8\ntqdm>=4.60\n"
+    }
+  ],
+  "hidden": {
+    "seed": 1234,
+    "tolerance": 0.06
+  }
+}

@@ -1,0 +1,34 @@
+{
+  "id": "eval_inverted_metric",
+  "category": "evaluation",
+  "title": "Error rate reported as accuracy",
+  "difficulty": "easy",
+  "goal": "Reproduce the documented experiment and determine why the validation accuracy does not match the documented result. Fix the repository so it reproduces the documented result.",
+  "command": "python train.py",
+  "metric": {
+    "name": "val_accuracy",
+    "expected": 0.881,
+    "tolerance": 0.03
+  },
+  "symptom": {
+    "kind": "wrong_result"
+  },
+  "ground_truth": {
+    "category": "evaluation",
+    "files": [
+      "metrics.py"
+    ],
+    "description": "accuracy() counts mismatches instead of matches, so the printed number is 1 - accuracy."
+  },
+  "fix": [
+    {
+      "path": "metrics.py",
+      "search": "np.sum(preds != labels) / len(labels)",
+      "replace": "np.sum(preds == labels) / len(labels)"
+    }
+  ],
+  "hidden": {
+    "seed": 1234,
+    "tolerance": 0.06
+  }
+}

@@ -1,0 +1,35 @@
+{
+  "id": "arch_classifier_dim",
+  "category": "architecture",
+  "title": "Output layer input size does not match the hidden layer",
+  "difficulty": "easy",
+  "goal": "Reproduce the documented experiment and determine why the validation accuracy does not match the documented result. Fix the repository so it reproduces the documented result.",
+  "command": "python train.py",
+  "metric": {
+    "name": "val_accuracy",
+    "expected": 0.881,
+    "tolerance": 0.03
+  },
+  "symptom": {
+    "kind": "crash",
+    "pattern": "core dimension|shape"
+  },
+  "ground_truth": {
+    "category": "architecture",
+    "files": [
+      "model.py"
+    ],
+    "description": "W2 is allocated with hidden//2 input features but receives `hidden` features."
+  },
+  "fix": [
+    {
+      "path": "model.py",
+      "search": "(hidden // 2, num_classes)",
+      "replace": "(hidden, num_classes)"
+    }
+  ],
+  "hidden": {
+    "seed": 1234,
+    "tolerance": 0.06
+  }
+}
