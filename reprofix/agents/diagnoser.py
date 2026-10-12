@@ -49,6 +49,12 @@ evidence is discarded). Never invent URLs. Give 1-4 hypotheses, most likely firs
 """
 
 
+MAX_CONCLUDE_RETRIES = 2
+CONCLUDE_NOW = ("You have used all inspection steps. Do not inspect again. Reply now with ONLY the conclude object "
+                '{"action": "conclude", "summary": "...", "recommended": "h1", "hypotheses": [...]} with 1-4 hypotheses, '
+                "even if you are unsure: say so in model_confidence.")
+
+
 @dataclass
 class Hypothesis:
     id: str
@@ -154,20 +160,30 @@ def diagnose(router: ModelRouter, toolbox: ToolBox, *, request: RunRequest, anal
     messages = [{"role": "system", "content": system}, {"role": "user", "content": user}]
 
     obj: dict | None = None
-    for step in range(max_tool_steps + 1):
-        force = step == max_tool_steps
-        if force:
-            messages.append({"role": "user", "content": "You have used all inspection steps. Conclude now."})
+    # `max_tool_steps` inspection rounds, then the model is told to conclude. A model that still inspects (or answers in a shape
+    # this code does not know) at that point gets a corrective message and up to MAX_CONCLUDE_RETRIES more tries, instead of
+    # the loop silently running out of turns.
+    for step in range(max_tool_steps + 1 + MAX_CONCLUDE_RETRIES):
+        force = step >= max_tool_steps
+        if step == max_tool_steps:
+            messages.append({"role": "user", "content": CONCLUDE_NOW})
         obj, _ = call_json(router, purpose, messages, escalate=escalate)
         if obj.get("action") == "inspect" and not force and isinstance(obj.get("calls"), list):
             outputs = [f"### call {json.dumps(c)}\n{toolbox.run(c)}" for c in obj["calls"][:4] if isinstance(c, dict)]
+            left = max_tool_steps - step - 1
+            note = (f"Inspection steps left: {left}." if left else "That was your last inspection step; conclude on the next turn.")
             messages += [{"role": "assistant", "content": json.dumps(obj)[:3000]},
-                         {"role": "user", "content": fence("tool results", "\n\n".join(outputs), 14000)}]
+                         {"role": "user", "content": fence("tool results", "\n\n".join(outputs), 14000) + "\n" + note}]
             continue
         if obj.get("action") == "conclude" or "hypotheses" in obj:
             break
-    else:  # pragma: no cover
-        raise AgentError("diagnoser never concluded")
+        messages += [{"role": "assistant", "content": json.dumps(obj)[:3000]},
+                     {"role": "user", "content": CONCLUDE_NOW if force else
+                      'That reply was not understood. Reply with ONLY {"action": "inspect", "calls": [...]} or {"action": "conclude", ...}.'}]
+    else:
+        seen = obj if isinstance(obj, dict) else {}
+        raise AgentError(f"diagnoser never concluded after {max_tool_steps} inspection steps and {MAX_CONCLUDE_RETRIES} "
+                         f"reminders (last reply: action={seen.get('action')!r}, keys={sorted(seen)[:6]})")
     assert obj is not None
 
     urls = {w.url for w in toolbox.web_results}

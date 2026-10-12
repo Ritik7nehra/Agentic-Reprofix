@@ -20,7 +20,7 @@ import uuid
 from pathlib import Path
 
 from ..config import Settings
-from ..util import truncate_middle
+from ..util import strip_ansi, truncate_middle
 from . import egress_ctl, hardware
 from .base import (DEPS_DIR, ExecResult, Sandbox, SandboxPolicy, SandboxUnavailable, pip_install_argv, refuse_unsafe_requirements,
                    rewrite_argv)
@@ -148,8 +148,8 @@ class DockerSandbox(Sandbox):
             timed_out = True
             subprocess.run(["docker", "kill", name], capture_output=True, timeout=30)
             out, err, code = exc.stdout or b"", exc.stderr or b"", None
-        so, t1 = truncate_middle(out.decode("utf-8", "replace"))
-        se, t2 = truncate_middle(err.decode("utf-8", "replace"))
+        so, t1 = truncate_middle(strip_ansi(out.decode("utf-8", "replace")))
+        se, t2 = truncate_middle(strip_ansi(err.decode("utf-8", "replace")))
         return ExecResult(argv=argv, exit_code=code, stdout=so, stderr=se, duration_s=time.time() - t0,
                           timed_out=timed_out, network=network, truncated=t1 or t2)
 

@@ -6,7 +6,7 @@ from pathlib import Path
 from ..core.repo import RepoScan
 from ..inference import ModelRouter
 from ..models import RunRequest
-from ..util import UnsafeCommand, parse_command
+from ..util import UnsafeCommand, is_setup_command, parse_command, strip_venv_prefix
 from .common import AgentError, call_json, fence, system_prompt
 
 PROMPT = """
@@ -68,10 +68,14 @@ def analyze(router: ModelRouter, scan: RepoScan, workdir: Path, request: RunRequ
     if scan.entry_points:
         candidates.append((f"python {scan.entry_points[0]}", "entry-point"))
     for cmd, src in candidates:
+        if src != "user":
+            cmd = strip_venv_prefix(cmd)
         try:
             argv = parse_command(cmd)
         except UnsafeCommand:
             continue
+        if src != "user" and is_setup_command(argv):
+            continue                                   # `python -m venv venv` prepares an environment; it runs none of the project
         script = next((a for a in argv[1:] if a.endswith(".py")), None)
         if src != "user" and script and not (workdir / script).is_file():
             continue

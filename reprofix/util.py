@@ -32,6 +32,28 @@ def parse_command(command: str) -> list[str]:
     return argv
 
 
+SETUP_MODULES = {"venv", "virtualenv", "pip", "ensurepip", "site", "sysconfig"}
+_VENV_PREFIX = re.compile(r"^(?:\.[\\/])?(?:\.?venv|env|\.env)[\\/](?:Scripts|bin)[\\/](python3?|pytest)(?:\.exe)?(?=\s|$)", re.I)
+
+
+def is_setup_command(argv: list[str]) -> bool:
+    """`python -m venv venv`, `python -m pip install ...`: commands that prepare an environment and run none of the project."""
+    return len(argv) >= 3 and argv[1] == "-m" and argv[2].split(".")[0].lower() in SETUP_MODULES
+
+
+def strip_venv_prefix(command: str) -> str:
+    """`.\\venv\\Scripts\\python app.py` or `venv/bin/python app.py` -> `python app.py` (the sandbox has its own interpreter)."""
+    return _VENV_PREFIX.sub(lambda m: m.group(1).lower(), command.strip(), count=1)
+
+
+_ANSI = re.compile(r"\x1b\[[0-9;?]*[ -/]*[@-~]|\x1b\][^\x07\x1b]*(?:\x07|\x1b\\)|\x1b[@-Z\\-_]")
+
+
+def strip_ansi(text: str) -> str:
+    """Remove terminal colour and cursor codes (`ESC[96m`) so logs read as text, in the UI and for the models."""
+    return _ANSI.sub("", text)
+
+
 def truncate_middle(text: str, head: int = 3000, tail: int = 12000) -> tuple[str, bool]:
     """Keep the start and (more importantly) the end of long output; tracebacks live at the end."""
     if len(text) <= head + tail:
@@ -95,9 +117,13 @@ def extract_json(text: str) -> dict | None:
                 start = None
     for cand in candidates:
         try:
-            obj = json.loads(cand)
+            obj = json.loads(cand, strict=False)
         except json.JSONDecodeError:
-            continue
+            cleaned = re.sub(r",\s*([\]}])", r"\1", cand)
+            try:
+                obj = json.loads(cleaned, strict=False)
+            except json.JSONDecodeError:
+                continue
         if isinstance(obj, dict):
             return obj
     return None

@@ -32,7 +32,7 @@ def system_prompt(task: str, body: str) -> str:
 
 
 def call_json(router: ModelRouter, purpose: str, messages: list[dict], *, escalate: int = 0,
-              max_tokens: int = 8192, temperature: float = 0.2, retries: int = 1) -> tuple[dict, LLMResponse]:
+              max_tokens: int = 8192, temperature: float = 0.2, retries: int = 2) -> tuple[dict, LLMResponse]:
     msgs = list(messages)
     last: LLMResponse | None = None
     for attempt in range(retries + 1):
@@ -43,6 +43,6 @@ def call_json(router: ModelRouter, purpose: str, messages: list[dict], *, escala
             return obj, resp
         msgs = msgs + [
             {"role": "assistant", "content": resp.text[:4000]},
-            {"role": "user", "content": "That was not a single valid JSON object. Reply again with ONLY the JSON object."},
+            {"role": "user", "content": "That was not a valid JSON object. Reply with ONLY a valid, parseable JSON object matching the requested schema. Do not include markdown preamble."},
         ]
     raise AgentError(f"{purpose}: model did not return valid JSON (last reply: {(last.text if last else '')[:200]!r})")

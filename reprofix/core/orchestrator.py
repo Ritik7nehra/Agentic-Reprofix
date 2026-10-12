@@ -225,6 +225,11 @@ class Orchestrator:
             raise UnsafeCommand("could not determine how to run the project; provide an explicit command")
         self.argv = parse_command(cmd)
         self.step("entry", "done", f"{cmd}  (from {self.analysis['run_command_source']})")
+        repo_node = self.graph.add("repo", self._repo_name(), status="info", command=cmd,
+                                   command_source=self.analysis["run_command_source"], framework=self.analysis.get("framework"),
+                                   task=self.analysis.get("task"), files=self.scan.requirements[:4],
+                                   metric=(f"{self.metric.name} ≈ {self.metric.expected} (±{self.metric.tolerance})"
+                                           if self.metric and self.metric.expected is not None else None))
         desc = f"{self.metric.name} ≈ {self.metric.expected}" if self.metric and self.metric.expected is not None else "none specified"
         plan = make_plan(self.router, self.analysis, self.req.goal, desc)
         self.emit("plan", plan)
@@ -240,14 +245,24 @@ class Orchestrator:
         self.step("env", "done" if verdict.stage != "install_failure" else "failed")
         self.step("baseline", "done", verdict.stage)
         self.emit("verdict", {"label": "baseline", "verdict": verdict.model_dump()})
-        sym = self.graph.add("symptom", self._symptom_label(verdict, parts), status="open", stage=verdict.stage,
-                             reasons=verdict.reasons)
+        if verdict.verified:
+            sym = self.graph.add("result", self._baseline_ok_label(verdict), status="verified", stage=verdict.stage,
+                                 reasons=verdict.reasons, kept=False)
+        else:
+            sym = self.graph.add("symptom", self._symptom_label(verdict, parts), status="open", stage=verdict.stage,
+                                 reasons=verdict.reasons)
+        self.graph.link(repo_node, sym, "baseline_run")
+        tail = sym                                      # the node the next step hangs from
         self._publish_graph()
         if verdict.verified:
             self.step("analyze", "skipped", "already passing")
             self.step("hypothesize", "skipped")
             self.step("test", "skipped")
-            return baseline, self._final_check(verdict), None, "already_passing"
+            self.step("verify", "running")
+            final = self._final_check(verdict)
+            self.step("verify", "done" if final.verified else "failed", "second run agrees" if final.verified else "second run differs")
+            self._add_outcome(tail, final, "")
+            return baseline, final, None, "already_passing"
 
         # 3. repair loop
         rejected: list[dict] = []
@@ -255,6 +270,7 @@ class Orchestrator:
         consecutive_rejections = 0
         agent_errors = 0
         stop_reason = ""
+        diagnosed = False                               # did any diagnosis succeed? decides how the steps below end
         self.step("analyze", "running")
         for attempt in range(1, self.max_attempts + 1):
             self._check()
@@ -281,12 +297,18 @@ class Orchestrator:
                 )
             except (AgentError, ) as exc:
                 agent_errors += 1
+                fail = self.graph.add("failure", f"Attempt {attempt}: the diagnosis failed. {exc}"[:240], status="rejected",
+                                      stage="diagnose", attempt=attempt, why=str(exc)[:400])
+                self.graph.link(tail, fail, "attempt_failed")
+                tail = fail
+                self._publish_graph()
                 self.emit("attempt.failed", {"attempt": attempt, "stage": "diagnose", "error": str(exc)})
                 if agent_errors >= 2:
                     stop_reason = f"diagnosis kept failing: {exc}"
                     break
                 continue
             agent_errors = 0
+            diagnosed = True
             self._record_diagnosis(sym, diag, obs, attempt)
             chosen = choose_hypothesis(diag, rejected)
             self.step("analyze", "done")
@@ -324,6 +346,7 @@ class Orchestrator:
             res = self.graph.add("result", res_label, status="verified" if new_verdict.verified else ("confirmed" if ok else "rejected"),
                                  stage=new_verdict.stage, reasons=new_verdict.reasons, kept=ok, why=reason)
             self.graph.link(exp, res, "produced")
+            tail = res
             diff, _ = make_diff(self.orig, self.work, applied.changed)
             self.experiments.append({"n": attempt, "hypothesis": chosen.to_dict(), "kept": ok, "reason": reason,
                                      "files": applied.changed, "rationale": meta["rationale"],
@@ -344,6 +367,7 @@ class Orchestrator:
                     sym = self.graph.add("symptom", self._symptom_label(verdict, parts), status="open",
                                          stage=verdict.stage, reasons=verdict.reasons)
                     self.graph.link(res, sym, "remaining_symptom")
+                    tail = sym
                     self.step("analyze", "running", "continuing investigation")
             else:
                 revert(self.work, applied)  # requirement hash changes back -> _ensure_env reinstalls next run
@@ -357,8 +381,10 @@ class Orchestrator:
         else:
             stop_reason = stop_reason or "attempt limit reached"
 
-        self.step("test", "done")
-        self.step("hypothesize", "done")
+        # the steps end as what happened: a diagnosis that never came back is a failed step, not a finished one
+        self.step("analyze", "done" if diagnosed else "failed", "" if diagnosed else stop_reason)
+        self.step("hypothesize", "done" if diagnosed else "failed", "" if diagnosed else "no usable hypothesis")
+        self.step("test", "done" if self.experiments else "skipped", "" if self.experiments else "no fix was tested")
         # 4. final verification from a clean re-run
         self.step("verify", "running")
         final = self._final_check(verdict) if verdict.verified else verdict
@@ -369,6 +395,7 @@ class Orchestrator:
         if baseline.stage == "install_failure" and final.stage != "install_failure":
             self.step("env", "done", "dependency problem repaired")   # it was marked failed after the baseline
         self.step("verify", "done" if final.verified else "failed", stop_reason)
+        self._add_outcome(tail, final, stop_reason)
         self._publish_graph()
         if final.verified and (stable is not False):
             return baseline, final, stable, "verified" if (self.metric and self.metric.expected is not None) else "executes"
@@ -423,6 +450,28 @@ class Orchestrator:
             name = {"acc": "accuracy"}.get(em["name"], em["name"])
             self.metric = MetricSpec(name=name, expected=float(em["value"]))
             self.metric_source = "inferred from README: " + em["source"]
+
+    def _repo_name(self) -> str:
+        src = self.provenance.get("source") or self.req.repo_url or self.req.local_path or "repository"
+        tail = str(src).rstrip("/\\").replace("\\", "/").split("/")[-1]
+        return tail[:-4] if tail.endswith(".git") else (tail or "repository")
+
+    def _baseline_ok_label(self, v: Verdict) -> str:
+        if self.metric and self.metric.expected is not None and v.metric_value is not None:
+            return f"Baseline ran and reproduced {self.metric.name} = {v.metric_value:g}"
+        return "Baseline ran to completion" + ("" if self.metric and self.metric.expected is not None else "; no documented value to compare")
+
+    def _add_outcome(self, tail: str, final: Verdict, stop_reason: str) -> None:
+        if final.verified and self.metric and self.metric.expected is not None and final.metric_value is not None:
+            label, status = f"Reproduced: {self.metric.name} = {final.metric_value:g} (documented {self.metric.expected:g})", "verified"
+        elif final.verified:
+            label, status = "Runs cleanly; nothing documented to compare against, so nothing was reproduced", "verified"
+        else:
+            label, status = ("Stopped: " + (stop_reason or "no change improved on the baseline"))[:240], "rejected"
+        if final.verified:
+            self.graph.resolve_open_symptoms()
+        out = self.graph.add("outcome", label, status=status, stage=final.stage, reasons=final.reasons)
+        self.graph.link(tail, out, "ended_with")
 
     def _symptom_label(self, v: Verdict, parts: dict) -> str:
         if v.stage == "install_failure":

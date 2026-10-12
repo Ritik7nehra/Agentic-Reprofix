@@ -3,32 +3,108 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>ReproFix</title>
-  <meta name="description" content="Reproduce a broken ML repository's documented result, find what is wrong, patch it, and prove the fix by rerunning.">
-  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect x='3' y='13' width='26' height='6' fill='%232740E0' opacity='.25'/%3E%3Crect x='12' y='11' width='8' height='10' fill='none' stroke='%232740E0' stroke-width='2'/%3E%3Ccircle cx='16' cy='16' r='3' fill='%232740E0'/%3E%3C/svg%3E">
-  <link rel="stylesheet" href="style.css">
+  <title>ReproFix — AI-Powered ML Reproducibility & Debugging Platform</title>
+  <meta name="description" content="Autonomous reproducibility, diagnosis, and patching platform for machine learning repositories.">
+  <meta name="color-scheme" content="light dark">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%230B101D'/%3E%3Crect x='3' y='13' width='26' height='6' fill='%236366F1' opacity='.3'/%3E%3Crect x='11' y='10' width='10' height='12' fill='none' stroke='%236366F1' stroke-width='2'/%3E%3Ccircle cx='16' cy='16' r='3' fill='%2310B981'/%3E%3C/svg%3E">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:ital,wght@0,400;0,500;0,600;1,400&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css?v=10">
 </head>
 <body>
   <a class="skip" href="#view">Skip to content</a>
   <header class="top">
-    <a class="brand" href="#/" aria-label="ReproFix home">
-      <svg width="28" height="28" viewBox="0 0 32 32" aria-hidden="true">
-        <rect x="2" y="13" width="28" height="6" class="mark-band"/>
-        <rect x="11" y="10" width="10" height="12" class="mark-frame"/>
-        <circle cx="16" cy="16" r="3" class="mark-dot"/>
-      </svg>
-      <span>ReproFix</span>
-    </a>
-    <nav aria-label="Main">
-      <a href="#/" data-nav="start">Investigate</a>
-      <a href="#/runs" data-nav="runs">Past runs</a>
-      <a href="#/bench" data-nav="bench">Benchmark</a>
-    </nav>
+    <div class="top-left">
+      <a class="brand" href="#/" aria-label="ReproFix home">
+        <svg width="28" height="28" viewBox="0 0 32 32" aria-hidden="true">
+          <rect x="2" y="13" width="28" height="6" class="mark-band"/>
+          <rect x="11" y="10" width="10" height="12" class="mark-frame"/>
+          <circle cx="16" cy="16" r="3" class="mark-dot"/>
+        </svg>
+        <span class="brand-text">ReproFix</span>
+        <span class="brand-badge">v0.1.0</span>
+      </a>
+      <nav aria-label="Main navigation">
+        <a href="#/" data-nav="start">Investigate</a>
+        <a href="#/runs" data-nav="runs">Past runs</a>
+        <a href="#/bench" data-nav="bench">Benchmark</a>
+      </nav>
+    </div>
+    
     <div class="top-right">
-      <label id="token-wrap" hidden>API token <input id="token" type="password" autocomplete="off"></label>
+      <button type="button" class="cmd-k-trigger" id="cmd-k-btn" aria-label="Open command palette (Ctrl+K)">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
+        <span>Search or command</span>
+        <kbd class="kbd-shortcut">⌘K</kbd>
+      </button>
+      <div class="pills" id="pills" aria-label="Server status"></div>
+      <label id="token-wrap" hidden>API token <input id="token" type="password" autocomplete="off" placeholder="Bearer token"></label>
+      <button type="button" class="theme" id="theme" aria-label="Colour theme">Theme: auto</button>
+      <button type="button" class="btn-icon" id="shortcuts-btn" title="Keyboard shortcuts (?)" aria-label="Keyboard shortcuts">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><path d="M12 17h.01"/></svg>
+      </button>
     </div>
   </header>
+
   <main id="view" tabindex="-1"><p class="loading">Loading…</p></main>
-  <script src="app.js" defer></script>
+  
+  <footer class="foot">
+    <div class="foot-inner">
+      <span>A model proposes, code decides: nothing here is called fixed unless a measured number says so.</span>
+      <div class="foot-links">
+        <span class="mono">ReproFix Autonomous ML Pipeline</span>
+        <span>•</span>
+        <a href="#/bench">Benchmark</a>
+        <span>•</span>
+        <a href="#/runs">Runs History</a>
+      </div>
+    </div>
+  </footer>
+
+  <!-- Command Palette Modal -->
+  <div id="cmd-palette" class="modal-backdrop" hidden>
+    <div class="cmd-modal" role="dialog" aria-modal="true" aria-label="Command palette">
+      <div class="cmd-input-row">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
+        <input type="text" id="cmd-search-input" placeholder="Type a command or search past runs..." autocomplete="off">
+        <kbd class="kbd-small">ESC</kbd>
+      </div>
+      <div class="cmd-results" id="cmd-results"></div>
+      <div class="cmd-footer">
+        <span><kbd>↑</kbd><kbd>↓</kbd> to navigate</span>
+        <span><kbd>↵</kbd> to select</span>
+        <span><kbd>ESC</kbd> to close</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Keyboard Shortcuts Modal -->
+  <div id="shortcuts-modal" class="modal-backdrop" hidden>
+    <div class="shortcuts-card" role="dialog" aria-modal="true" aria-label="Keyboard shortcuts">
+      <header class="shortcuts-header">
+        <h3>Keyboard Shortcuts</h3>
+        <button type="button" class="btn-close" id="shortcuts-close" aria-label="Close">✕</button>
+      </header>
+      <div class="shortcuts-body">
+        <div class="shortcut-row"><span>Command palette / Search</span><kbd>⌘K / Ctrl+K</kbd></div>
+        <div class="shortcut-row"><span>Evidence Graph tab</span><kbd>G</kbd></div>
+        <div class="shortcut-row"><span>Changes tab</span><kbd>C</kbd></div>
+        <div class="shortcut-row"><span>Output logs tab</span><kbd>O</kbd></div>
+        <div class="shortcut-row"><span>Report tab</span><kbd>E</kbd></div>
+        <div class="shortcut-row"><span>Re-run active investigation</span><kbd>R</kbd></div>
+        <div class="shortcut-row"><span>Fit / Reset Graph View</span><kbd>F</kbd></div>
+        <div class="shortcut-row"><span>Toggle Theme</span><kbd>T</kbd></div>
+        <div class="shortcut-row"><span>Keyboard shortcuts help</span><kbd>?</kbd></div>
+        <div class="shortcut-row"><span>Close modal / drawer</span><kbd>ESC</kbd></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Toast Container -->
+  <div id="toast-container" class="toast-container" aria-live="polite" aria-atomic="true"></div>
+
+  <script src="app.js?v=20" defer></script>
 </body>
 </html>
+

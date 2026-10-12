@@ -132,7 +132,7 @@ def build_report(o: "Orchestrator", status: str, error: str | None, baseline: Ve
     checks: list[dict] = []
     if final is not None:
         checks.append({"check": "Application executes", "passed": final.executes,
-                       "detail": "; ".join(final.reasons[:1]) or final.stage})
+                       "detail": ("ran to completion and exited normally" if final.executes else ("; ".join(final.reasons[:1]) or final.stage))})
         checks.append({"check": "Tests pass", "passed": final.tests_ok,
                        "detail": "not run: no tests found, or pytest is not a requirement of the repository" if final.tests_ok is None else ("pytest -q passed" if final.tests_ok else "pytest -q failed")})
         checks.append({"check": "Documented metric reproduced", "passed": final.metric_ok,

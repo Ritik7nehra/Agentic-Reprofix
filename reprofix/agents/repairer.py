@@ -19,7 +19,7 @@ Rules:
 - Change only what the hypothesis requires. Prefer fixing the root cause over working around it.
 - Never edit tests or the README. Never hardcode the expected metric value or print a made-up number.
 - Do not silence errors with try/except or by deleting the failing code. Do not add network access.
-- Dependency problems are fixed in requirements files (pin/unpin/add), not in code.
+- Dependency problems are fixed in requirements files (pin/unpin/add), not in code. When pinning to resolve breaking changes or removed APIs, specify an upper bound or exact version (e.g. '<1.0.0' or '==0.10.14'), never an open-ended '>=' that allows the breaking version.
 
 Return JSON:
 {"edits": [{"path": "...", "search": "...", "replace": "..."}], "rationale": "one or two sentences", "expected_effect": "what should change when rerun"}

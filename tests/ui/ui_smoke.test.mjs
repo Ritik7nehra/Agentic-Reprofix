@@ -372,10 +372,130 @@ check("demo run finished with a report", !!meta.report && meta.report.status ===
   check("hardware: a CPU-only run says CPU only and shows no proof box", /Hardware: CPU only \(GPU not enabled\)/.test(text(cpu, ".pane")) && q(cpu, "pre.raw").length === 0);
 }
 
+// ------------------------------------------------------------------ 3f. redesign: graph shape, theme, tiles, runs list, log clean-up, report export
+{
+  const json = (data, status = 200) => Promise.resolve({ ok: status < 400, status, json: async () => data });
+  const sseOf = (events) => () => events.map(([k, d]) => `event: ${k}\ndata: ${JSON.stringify(d)}\n\n`).join("") + "event: end\ndata: {}\n\n";
+  const tab = (w, name) => [...q(w, '[role="tab"]')].find((b) => new RegExp(name).test(b.textContent)).click();
+
+  // the real demo run: every graph node is drawn, it starts at the repository and ends in an outcome, nothing is left "open"
+  const types = new Set(meta.report.graph.nodes.map((n) => n.type));
+  check("demo graph: has a repository node and an outcome node", types.has("repo") && types.has("outcome"), [...types].join(","));
+  check("demo graph: a symptom that is gone after the fix is 'resolved', not 'open'", meta.report.graph.nodes.filter((n) => n.type === "symptom").every((n) => n.status === "resolved") && !meta.report.graph.nodes.some((n) => n.status === "open"));
+  {
+    const w = makeWindow(); w.location.hash = "#/run/" + demo.id;
+    await until(() => /Reproduced/.test(text(w, ".run-head .chip")), 10000); await replayed(w);
+    tab(w, "Evidence graph"); await until(() => q(w, ".g-node").length);
+    check("graph: a repository node comes first and is not a repeat of its own kind label", q(w, ".g-node.k-repo").length === 1 && !/Repository\s*Repository/.test(q(w, ".g-node.k-repo")[0].textContent.replace(/\s+/g, " ")), q(w, ".g-node.k-repo")[0].textContent);
+    check("graph: resolved symptoms are drawn green, like confirmed results", q(w, ".g-node.k-symptom.resolved").length >= 1 && q(w, ".g-node.open").length === 0);
+    check("graph: the outcome node says verified", /verified/.test(q(w, ".g-node.k-outcome")[0].textContent) && /Reproduced:/.test(q(w, ".g-node.k-outcome")[0].textContent), q(w, ".g-node.k-outcome")[0].textContent);
+    check("graph: zoom and fit controls are present and labelled", q(w, '.g-tools button[aria-label="Zoom in"]').length === 1 && q(w, '.g-tools button[aria-label="Fit the whole graph"]').length === 1);
+    const svg = q(w, ".graph-wrap svg")[0], vb0 = svg.getAttribute("viewBox");
+    q(w, '.g-tools button[aria-label="Zoom in"]')[0].click();
+    const vb1 = svg.getAttribute("viewBox");
+    check("graph: zoom in narrows the view box", Number(vb1.split(" ")[2]) < Number(vb0.split(" ")[2]), `${vb0} -> ${vb1}`);
+    q(w, '.g-tools button[aria-label="Fit the whole graph"]')[0].click();
+    check("graph: fit restores the whole graph", q(w, ".graph-wrap svg")[0].getAttribute("viewBox") === vb0 || svg.getAttribute("viewBox") === vb0);
+    check("graph: the legend names the node kinds that are present", /Repository/.test(text(w, ".legend")) && /Outcome/.test(text(w, ".legend")) && /Symptom/.test(text(w, ".legend")));
+    check("graph: every node can be reached by keyboard and says what it is", [...q(w, ".g-node")].every((g) => g.getAttribute("tabindex") === "0" && /: /.test(g.getAttribute("aria-label") || "")));
+    // summary tiles, theme and export on the same page
+    check("tiles: result, experiments, model cost, sandbox time and hardware are shown", q(w, ".tiles .tile").length === 5 && /Result/.test(text(w, ".tiles")) && /Sandbox time/.test(text(w, ".tiles")), text(w, ".tiles"));
+    check("tiles: the result tile shows the move from baseline to final", /→/.test(q(w, ".tiles .tile")[0].textContent), q(w, ".tiles .tile")[0].textContent);
+    tab(w, "Report"); await until(() => q(w, ".checks li").length);
+    const labels = [...q(w, ".pane button")].map((b) => b.textContent);
+    check("report: export buttons for markdown, JSON and a short summary", labels.includes("Download report (.md)") && labels.includes("Download JSON") && labels.includes("Copy summary"), labels.join(" | "));
+    const btn = w.document.getElementById("theme");
+    const seen = [btn.textContent];
+    for (let i = 0; i < 3; i++) { btn.click(); seen.push(`${btn.textContent}/${w.document.documentElement.getAttribute("data-theme")}`); }
+    check("theme: the button cycles auto, light, dark and back to auto", seen.join(" ") === "Theme: auto Theme: light/light Theme: dark/dark Theme: auto/null", seen.join(" "));
+    btn.click();
+    check("theme: the choice is remembered", w.localStorage.getItem("reprofix_theme") === "light");
+  }
+
+  // a project that already passes: three nodes, a verified result, no open symptom
+  {
+    const g = { nodes: [{ id: "n1", type: "repo", label: "acme/widget", status: "info", data: { command: "python train.py", command_source: "readme", framework: "pytorch" } },
+      { id: "n2", type: "result", label: "Baseline ran and reproduced val_accuracy = 0.9", status: "verified", data: {} },
+      { id: "n3", type: "outcome", label: "Reproduced: val_accuracy = 0.9 (documented 0.9)", status: "verified", data: {} }],
+      edges: [{ from: "n1", to: "n2", relation: "baseline_run" }, { from: "n2", to: "n3", relation: "ended_with" }] };
+    const report = { ...meta.report, status: "already_passing", graph: g };
+    const w = makeWindow({ sse: sseOf([["report", report], ["run.finished", { status: "already_passing" }]]),
+      fetch: (u, o) => (u === "/api/runs/pass" ? json({ id: "pass", status: "already_passing", request: { repo_url: "https://github.com/acme/widget", goal: "g" }, report }) : fetch(BASE + u, o)) });
+    w.location.hash = "#/run/pass"; await until(() => q(w, ".run-head .chip").length); await replayed(w);
+    tab(w, "Evidence graph"); await until(() => q(w, ".g-node").length);
+    check("graph: a passing project draws three nodes, all verified or informational", q(w, ".g-node").length === 3 && q(w, ".g-node.open").length === 0 && q(w, ".g-node.verified").length === 2, String(q(w, ".g-node").length));
+    q(w, ".g-node.k-repo")[0].dispatchEvent(new w.MouseEvent("click", { bubbles: true })); await until(() => q(w, ".detail").length);
+    check("graph: the repository node shows the command and where it came from", /python train\.py \(from readme\)/.test(text(w, ".detail")) && /pytorch/.test(text(w, ".detail")), text(w, ".detail"));
+  }
+
+  // a diagnosis that never came back is a failure node, with the reason, and the run still ends in an outcome
+  {
+    const g = { nodes: [{ id: "n1", type: "repo", label: "acme/widget", status: "info", data: {} },
+      { id: "n2", type: "symptom", label: "Result differs from expected", status: "open", data: {} },
+      { id: "n3", type: "failure", label: "Attempt 1: the diagnosis failed. diagnoser never concluded after 5 inspection steps and 2 reminders", status: "rejected", data: {} },
+      { id: "n4", type: "outcome", label: "Stopped: diagnosis kept failing", status: "rejected", data: {} }],
+      edges: [{ from: "n1", to: "n2", relation: "baseline_run" }, { from: "n2", to: "n3", relation: "attempt_failed" }, { from: "n3", to: "n4", relation: "ended_with" }] };
+    const w = makeWindow({ sse: sseOf([["graph", g], ["run.finished", { status: "failed" }]]),
+      fetch: (u, o) => (u === "/api/runs/fail" ? json({ id: "fail", status: "failed", request: { repo_url: "https://github.com/acme/widget", goal: "g" }, report: null }) : fetch(BASE + u, o)) });
+    w.location.hash = "#/run/fail"; await until(() => q(w, ".g-node").length === 4); await replayed(w);
+    check("graph: a failed diagnosis shows as a failure node and the run ends in a rejected outcome", q(w, ".g-node.k-failure.rejected").length === 1 && q(w, ".g-node.k-outcome.rejected").length === 1 && q(w, ".g-node.k-symptom.open").length === 1);
+    check("graph: every node card contains its own text (none is cut off by a short card)", [...q(w, ".g-node")].every((g2) => {
+      const card = g2.querySelector("rect.card"), top = Number(card.getAttribute("y")), h2 = Number(card.getAttribute("height"));
+      return [...g2.querySelectorAll("text")].every((tx) => Number(tx.getAttribute("y")) <= top + h2 - 4);
+    }));
+  }
+
+  // terminal colour codes in saved logs are not shown
+  {
+    const raw = "\u001b[31mERROR\u001b[0m something \u001b[1;32mok\u001b[0m";
+    const events = [["run.started", { llm_backend: "nebius", sandbox: { filesystem_isolated: true }, request: {} }],
+      ["exec", { id: "e1", phase: "baseline", argv: ["python", "train.py"], exit_code: 1, duration_s: 1, network: false, truncated: false, stdout: raw, stderr: raw, metric_value: null }],
+      ["run.finished", { status: "failed" }]];
+    const w = makeWindow({ sse: sseOf(events), fetch: (u, o) => (u === "/api/runs/ansi" ? json({ id: "ansi", status: "failed", request: { repo_url: "https://github.com/a/b", goal: "g" }, report: null }) : fetch(BASE + u, o)) });
+    w.location.hash = "#/run/ansi"; await until(() => q(w, '[role="tab"]').length); await replayed(w);
+    tab(w, "Output"); await until(() => q(w, ".logbox pre").length);
+    check("logs: colour codes are removed and the words stay", !/\u001b|\[31m|\[0m/.test(text(w, ".logbox pre")) && /ERROR something ok/.test(text(w, ".logbox pre")), text(w, ".logbox pre"));
+  }
+  {
+    const { stripAnsi, reportToMarkdown } = makeWindow().module.exports;
+    check("stripAnsi: removes colour, cursor and title codes only", stripAnsi("\u001b[2K\u001b[1;31mred\u001b[0m 100% [ok] \u001b]0;title\u0007end") === "red 100% [ok] end" && stripAnsi(null) === "");
+    const md = reportToMarkdown(meta.report);
+    check("markdown export: heading, the status line and every computed check", /^# ReproFix report/.test(md) && md.includes(meta.report.status_text) && (md.match(/- PASS:/g) || []).length === 7 && !/- FAIL:/.test(md), md.slice(0, 200));
+    check("markdown export: results by run and the sandbox facts are included", /## Results by run/.test(md) && /## Sandbox and environment/.test(md) && /not isolated|isolated/.test(md));
+    const evil = reportToMarkdown({ ...meta.report, status_text: "a|b\n# injected", caveats: ["x\n## also injected | cell"] });
+    check("markdown export: a newline in model or repository text cannot start a new heading", !/\n# injected|\n## also injected/.test(evil), evil.slice(0, 160));
+  }
+
+  // past runs: summary tiles, status filter and search
+  {
+    const now = Date.now() / 1000;
+    const runs = [{ id: "a", repo: "https://github.com/acme/alpha", status: "verified", created: now, label: "" },
+      { id: "b", repo: "https://github.com/acme/beta", status: "failed", created: now - 60, label: "" },
+      { id: "c", repo: "https://github.com/acme/gamma", status: "already_passing", created: now - 120, label: "" },
+      { id: "d", repo: "https://github.com/acme/alpha-two", status: "failed", created: now - 180, label: "" }];
+    const w = makeWindow({ fetch: (u, o) => (u === "/api/runs" ? json(runs) : fetch(BASE + u, o)) });
+    w.location.hash = "#/runs"; await until(() => q(w, ".runlist li").length === 4);
+    const tiles = [...q(w, ".tiles .tile")].map((x) => [...x.children].map((c) => c.textContent).join(" "));
+    check("past runs: the tiles count runs, reproduced and not fixed", /Runs 4/.test(tiles[0]) && /Reproduced 2 .*1 were already passing/.test(tiles[1]) && /Not fixed 2/.test(tiles[2]) && /Latest .*acme\/alpha/.test(tiles[3]), tiles.join(" | "));
+    const buttons = () => [...q(w, ".filters button")];
+    check("past runs: one filter button per status that occurs, plus All", buttons().map((b) => b.textContent).join(",") === "All,Reproduced,Not fixed,Already passing", buttons().map((b) => b.textContent).join(","));
+    buttons().find((b) => b.textContent === "Not fixed").click();
+    check("past runs: the status filter narrows the list and says how many", q(w, ".runlist li").length === 2 && /2 of 4 runs/.test(text(w, "#view")) && buttons().find((b) => b.textContent === "Not fixed").getAttribute("aria-pressed") === "true");
+    const search = q(w, 'input[type="search"]')[0];
+    search.value = "two"; search.dispatchEvent(new w.Event("input", { bubbles: true }));
+    check("past runs: search and filter combine", q(w, ".runlist li").length === 1 && /alpha-two/.test(text(w, ".runlist")) && /1 of 4 runs/.test(text(w, "#view")));
+    search.value = "nothing matches this"; search.dispatchEvent(new w.Event("input", { bubbles: true }));
+    check("past runs: no match says so instead of showing a blank list", q(w, ".runlist li").length === 0 && /0 of 4 runs/.test(text(w, "#view")));
+    const none = makeWindow({ fetch: (u, o) => (u === "/api/runs" ? json([]) : fetch(BASE + u, o)) });
+    none.location.hash = "#/runs"; await until(() => /No runs yet/.test(text(none, "#view")));
+    check("past runs: an empty history has no tiles and invites a first run", q(none, ".tiles").length === 0 && /No runs yet/.test(text(none, "#view")));
+  }
+}
+
 // ------------------------------------------------------------------ 4. pure layout / diff logic
 {
   const w = makeWindow();
-  const { layoutGraph, parseDiff } = w.module.exports;
+  const { layoutGraph, parseDiff, wrapText } = w.module.exports;
   const g = { nodes: [], edges: [] };
   for (let i = 1; i <= 7; i++) g.nodes.push({ id: "n" + i, type: i === 1 ? "symptom" : "hypothesis", label: "x ".repeat(40), status: "open", data: {} });
   for (let i = 2; i <= 7; i++) g.edges.push({ from: "n1", to: "n" + i, relation: "explained_by" });
@@ -383,7 +503,9 @@ check("demo run finished with a report", !!meta.report && meta.report.status ===
   const row = Object.values(L.pos).filter((p) => p.y === Object.values(L.pos).find((q2) => q2.n.id === "n2").y).sort((a, b) => a.x - b.x);
   check("layout: siblings on one row never overlap", row.every((p, i) => i === 0 || p.x >= row[i - 1].x + row[i - 1].w), JSON.stringify(row.map((r) => r.x)));
   check("layout: children sit below parents", Object.values(L.pos).filter((p) => p.n.id !== "n1").every((p) => p.y > L.pos.n1.y));
+  check("layout: every card is tall enough for its label lines", Object.values(L.pos).every((p) => p.h >= 38 + p.lines.length * 15 - 1));
   check("layout: canvas is wide enough for every node", Object.values(L.pos).every((p) => p.x >= 0 && p.x + p.w <= L.width + 1), `width ${L.width}`);
+  check("wrapText: long labels end in an ellipsis within the line limit", (() => { const l = wrapText("word ".repeat(80), 30, 4); return l.length === 4 && l[3].endsWith("\u2026") && l.every((x) => x.length <= 33); })());
   const files = parseDiff("diff --git a/x.py b/x.py\n--- a/x.py\n+++ b/x.py\n@@ -1,2 +1,2 @@\n a\n-b\n+c\n");
   check("diff parser counts added/removed lines", files.length === 1 && files[0].add === 1 && files[0].del === 1 && files[0].lines.find((l) => l.t === "add").b === 2);
 }

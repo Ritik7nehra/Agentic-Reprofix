@@ -1,4 +1,5 @@
-"""Evidence graph: symptom -> hypotheses -> evidence / experiments -> results -> accepted/rejected.
+"""Evidence graph: repository -> baseline (symptom, or a verified result) -> hypotheses -> evidence / experiments -> results -> outcome.
+A failed diagnosis is a `failure` node, so a run that stops early still shows where and why.
 
 Statuses are assigned by code from experiment outcomes and evidence checks. A model's stated
 confidence is stored as `model_confidence` and displayed as such; it never sets a status.
@@ -8,8 +9,8 @@ from __future__ import annotations
 import threading
 from typing import Any
 
-NODE_TYPES = {"symptom", "hypothesis", "evidence", "experiment", "result"}
-STATUSES = {"open", "untested", "confirmed", "rejected", "verified", "unverified", "info"}
+NODE_TYPES = {"repo", "symptom", "hypothesis", "evidence", "experiment", "result", "failure", "outcome"}
+STATUSES = {"open", "untested", "confirmed", "rejected", "verified", "unverified", "info", "resolved"}
 
 
 class EvidenceGraph:
@@ -35,6 +36,13 @@ class EvidenceGraph:
         assert status in STATUSES
         with self._lock:
             self.nodes[nid]["status"] = status
+
+    def resolve_open_symptoms(self) -> None:
+        """A symptom that was seen and then no longer shows in the final, re-measured run is `resolved`, not `open`."""
+        with self._lock:
+            for n in self.nodes.values():
+                if n["type"] == "symptom" and n["status"] == "open":
+                    n["status"] = "resolved"
 
     def update_data(self, nid: str, **data: Any) -> None:
         with self._lock:

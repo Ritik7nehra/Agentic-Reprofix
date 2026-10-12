@@ -20,7 +20,7 @@ except ImportError:
     resource = None
 
 from ..config import Settings
-from ..util import truncate_middle
+from ..util import strip_ansi, truncate_middle
 from .base import (DEPS_DIR, ExecResult, Sandbox, SandboxPolicy, SandboxUnavailable, pip_install_argv, refuse_unsafe_requirements,
                    rewrite_argv)
 
@@ -162,8 +162,8 @@ class LocalSandbox(Sandbox):
             proc.wait()
         for t in threads:
             t.join(timeout=5)
-        so, t1 = truncate_middle(b"".join(out).decode("utf-8", "replace"))
-        se, t2 = truncate_middle(b"".join(err).decode("utf-8", "replace"))
+        so, t1 = truncate_middle(strip_ansi(b"".join(out).decode("utf-8", "replace")))
+        se, t2 = truncate_middle(strip_ansi(b"".join(err).decode("utf-8", "replace")))
         return ExecResult(
             argv=argv, exit_code=None if timed_out else proc.returncode, stdout=so, stderr=se,
             duration_s=time.time() - t0, timed_out=timed_out, network=network, truncated=t1 or t2,

@@ -112,18 +112,25 @@ in the report so a benchmark run shows exactly what was routed where.
 
 ## Evidence graph
 
+Every run's graph has the same spine, so it is never empty: `repo -> baseline -> ... -> outcome`. The baseline is a `symptom`
+when the first run fails, or a verified `result` when the project already reproduces its number.
+
 | Node type | Meaning |
 |---|---|
+| `repo` | The repository that was investigated, with the command that was run, where the command came from, the framework and the documented value. |
 | `symptom` | A failure state: install failure, crash, or a result outside the band. |
 | `hypothesis` | A candidate cause with category, files, and the model's stated confidence. |
 | `evidence` | A quote from a file or a log, or a URL from a search. `verified` or `unverified` by code. |
 | `experiment` | An applied edit set. |
 | `result` | What the re-run showed, and whether the patch was kept. |
+| `failure` | An attempt that stopped before a fix could be tested, for example a diagnosis that never concluded. The error is shown as it happened. |
+| `outcome` | The end of the run: reproduced (verified) or why it stopped (rejected). |
 
 Relations: `symptom -explained_by-> hypothesis`, `hypothesis -supported_by-> evidence`,
-`hypothesis -tested_by-> experiment`, `experiment -produced-> result`, `result -remaining_symptom-> symptom`.
+`hypothesis -tested_by-> experiment`, `experiment -produced-> result`, `result -remaining_symptom-> symptom`,
+`repo -baseline_run-> symptom | result`, `... -attempt_failed-> failure`, `... -ended_with-> outcome`.
 
-Statuses are set only by code: `open`, `untested`, `confirmed`, `rejected`, `verified`, `unverified`, `info`.
+Statuses are set only by code: `open`, `untested`, `confirmed`, `rejected`, `verified`, `unverified`, `info`, `resolved` (a symptom that is gone in the final, re-measured run).
 `model_confidence` is stored as data and is shown with the label "Model-stated confidence (not verified)".
 
 ## Events and streaming
