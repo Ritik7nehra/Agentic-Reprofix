@@ -8,6 +8,7 @@ Powered by **NVIDIA Nemotron 3 (Nano / Super / Ultra)** hosted on **Nebius Token
 
 ---
 
+[![Live Demo](https://img.shields.io/badge/Live_Demo-Active_Public_Demo-success?style=flat-square&logo=cloudflare)](https://wheel-alerts-limitation-middle.trycloudflare.com)
 [![Nebius Token Factory](https://img.shields.io/badge/Nebius_Token_Factory-NVIDIA_Nemotron_3-76B900?style=flat-square&logo=nvidia)](https://tokenfactory.nebius.com)
 [![ReproBench](https://img.shields.io/badge/ReproBench-30%2F30_Verified_(100%25)-0ea5e9?style=flat-square)](docs/benchmark.md)
 [![Verification](https://img.shields.io/badge/Verification-7--Point_Deterministic_Proof-10b981?style=flat-square)](#how-verification-works)
@@ -348,14 +349,17 @@ reprofix run --repo https://github.com/<owner>/<repo>
 
 ### 4. Web Application UI
 
-Start the ReproFix server and navigate to `http://127.0.0.1:1800`:
+- **Public Live Demo**: [https://wheel-alerts-limitation-middle.trycloudflare.com](https://wheel-alerts-limitation-middle.trycloudflare.com)
+- **Local Dev Server**: `http://127.0.0.1:1800`
+
+Start the local ReproFix server and navigate to `http://127.0.0.1:1800`:
 
 ```bash
 # Launch with local sandbox for instant development:
 REPROFIX_SANDBOX=local REPROFIX_ALLOW_UNSAFE_LOCAL=1 reprofix serve --port 1800
 ```
 
-Open `http://127.0.0.1:1800` in your browser to access the complete developer workspace.
+Open `http://127.0.0.1:1800` or the public live demo URL in your browser to access the complete developer workspace.
 
 ### 5. Automated Pull Request Creation
 

@@ -184,6 +184,7 @@ code, pre, .mono { font-family: var(--font-mono); font-size: 12.5px; }
 .pill .dot.ok { background: var(--ok); box-shadow: 0 0 6px rgba(16, 185, 129, 0.6); }
 .pill .dot.bad { background: var(--bad); box-shadow: 0 0 6px rgba(239, 68, 68, 0.6); }
 .pill .dot.warn { background: var(--warn); box-shadow: 0 0 6px rgba(245, 158, 11, 0.6); }
+.pill .dot.neutral { background: var(--head-muted); box-shadow: none; opacity: 0.7; }
 
 button.theme {
   white-space: nowrap; background: rgba(255, 255, 255, 0.05); border: 1px solid var(--head-rule);
@@ -364,7 +365,7 @@ details.advanced-box .adv-grid { display: grid; grid-template-columns: repeat(2,
   padding: 10px 14px; margin: 0 0 14px; font-size: 13.5px; border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
 }
 .banner.bad { border-color: var(--bad); background: var(--bad-soft); }
-.banner.info { border-color: var(--band); background: var(--band-soft); color: var(--ink); }
+.banner.info { border-left-color: #6366F1; background: rgba(99, 102, 241, 0.12); color: var(--ink); border-radius: var(--radius-sm); }
 
 /* Compact Summary Metric Cards */
 .tiles {
@@ -389,6 +390,25 @@ details.advanced-box .adv-grid { display: grid; grid-template-columns: repeat(2,
 .instrument header { display: flex; flex-wrap: wrap; gap: 6px 16px; align-items: baseline; margin-bottom: 6px; }
 .instrument header h2 { font-size: 15px; }
 .instrument header span { color: var(--muted); font-size: 12.5px; }
+
+/* Execution-Only Mode Card in Instrument */
+.exec-mode-container { display: flex; flex-direction: column; gap: 14px; padding: 4px 2px 8px; }
+.exec-mode-header { display: flex; flex-direction: column; gap: 6px; }
+.exec-mode-title-group { display: flex; align-items: center; flex-wrap: wrap; gap: 10px; }
+.exec-mode-title-group h2 { font-size: 16.5px; font-weight: 700; letter-spacing: -0.02em; }
+.exec-status-badge { font-size: 11px; font-weight: 650; padding: 3px 8px; border-radius: var(--radius-pill); text-transform: uppercase; letter-spacing: 0.04em; }
+.exec-status-badge.ok { background: rgba(16, 185, 129, 0.18); color: #10B981; border: 1px solid rgba(16, 185, 129, 0.35); }
+.exec-status-badge.info { background: rgba(99, 102, 241, 0.18); color: #818CF8; border: 1px solid rgba(99, 102, 241, 0.35); }
+.exec-status-badge.active { background: rgba(245, 158, 11, 0.18); color: #F59E0B; border: 1px solid rgba(245, 158, 11, 0.35); }
+.exec-mode-tag { font-size: 11px; font-family: var(--font-mono); color: var(--muted); background: var(--sunk); padding: 2px 7px; border-radius: 4px; border: 1px solid var(--rule); }
+.exec-mode-desc { font-size: 13px; color: var(--muted); max-width: 85ch; line-height: 1.45; }
+.exec-mode-stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(190px, 1fr)); gap: 12px; padding: 12px 16px; background: var(--sunk); border-radius: var(--radius-sm); border: 1px solid var(--rule); }
+.exec-stat { display: flex; flex-direction: column; gap: 3px; }
+.exec-stat .lbl { font-size: 11px; color: var(--muted); font-weight: 600; text-transform: uppercase; letter-spacing: 0.04em; }
+.exec-stat .val { font-size: 13.5px; font-weight: 600; color: var(--ink); }
+.exec-stat .val.ok { color: var(--ok); }
+.exec-mode-footer { display: flex; align-items: center; gap: 8px; font-size: 12px; color: var(--muted); background: rgba(255, 255, 255, 0.02); padding: 8px 12px; border-radius: 6px; border: 1px dashed var(--rule); }
+.exec-mode-footer code { color: var(--band); background: var(--sunk); padding: 1px 5px; border-radius: 3px; font-size: 11.5px; }
 .instrument svg { display: block; width: 100%; height: auto; }
 .instrument .note { color: var(--muted); font-size: 12px; padding: 4px 0 6px; }
 .ax { stroke: var(--rule); stroke-width: 1; }

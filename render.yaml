@@ -1,0 +1,29 @@
+services:
+  - type: web
+    name: agentic-reprofix
+    runtime: python
+    buildCommand: "pip install -e ."
+    startCommand: "reprofix serve --host 0.0.0.0 --port $PORT"
+    plan: free
+    healthCheckPath: /api/health
+    envVars:
+      - key: PYTHON_VERSION
+        value: 3.11.9
+      - key: REPROFIX_SANDBOX
+        value: local
+      - key: REPROFIX_ALLOW_UNSAFE_LOCAL
+        value: "1"
+      - key: REPROFIX_ALLOW_SDIST
+        value: "1"
+      - key: REPROFIX_DATA_DIR
+        value: ./data
+      - key: NEBIUS_BASE_URL
+        value: https://api.tokenfactory.nebius.com/v1/
+      - key: NEBIUS_MODEL_NANO
+        value: nvidia/nvidia-nemotron-3-nano-30b-a3b
+      - key: NEBIUS_MODEL_SUPER
+        value: nvidia/nemotron-3-super-120b-a12b
+      - key: NEBIUS_MODEL_ULTRA
+        value: nvidia/Nemotron-3-Ultra-550b-a55b
+      - key: NEBIUS_API_KEY
+        sync: false

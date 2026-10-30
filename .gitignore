@@ -8,3 +8,6 @@ node_modules/
 tests/ui/node_modules/
 *.egg-info/
 benchmark/results/*-subset.*
+*.exe
+cloudflared.exe
+

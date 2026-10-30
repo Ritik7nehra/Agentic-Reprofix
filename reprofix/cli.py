@@ -459,8 +459,8 @@ def main(argv: list[str] | None = None) -> int:
     sub = p.add_subparsers(dest="cmd", required=True)
 
     sp = sub.add_parser("serve", help="start the API and web UI")
-    sp.add_argument("--host", default="127.0.0.1")
-    sp.add_argument("--port", type=int, default=8000)
+    sp.add_argument("--host", default=os.environ.get("HOST", "127.0.0.1"))
+    sp.add_argument("--port", type=int, default=int(os.environ.get("PORT", "8000")))
 
     rp = sub.add_parser("run", help="investigate one repository from the terminal")
     g = rp.add_mutually_exclusive_group(required=True)
