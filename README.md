@@ -16,6 +16,12 @@ Powered by **NVIDIA Nemotron 3 (Nano / Super / Ultra)** hosted on **Nebius Token
 [![Tests](https://img.shields.io/badge/Test_Suite-797+_Passed_·_0_Failed-10b981?style=flat-square)](#tests)
 [![License](https://img.shields.io/badge/License-MIT-gray?style=flat-square)](LICENSE)
 
+## Demo Video
+
+[![Watch the ReproFix demo on YouTube](https://img.youtube.com/vi/aNwI9mMWnks/hqdefault.jpg)](https://youtu.be/aNwI9mMWnks)
+
+[Watch the project demo on YouTube](https://youtu.be/aNwI9mMWnks)
+
 ---
 
 ```
